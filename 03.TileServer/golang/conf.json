@@ -1,0 +1,9 @@
+{
+    "tiles":[
+        {"name":"tile","filePath":"d:\\doc\\项目\\重庆\\四维推演\\skyline\\g_map_raster\\gmap_data\\","fileExt":"jpg","type":"gmap","note":"gmap卫星影像"},
+        {"name":"tile1","filePath":"d:\\doc\\项目\\重庆\\四维推演\\skyline\\water_baseMap\\","fileExt":"png","type":"gmap","note":"重庆水利地图"},
+        {"name":"tile2","filePath":"d:\\doc\\项目\\重庆\\四维推演\\skyline\\cq_esri_map\\Layers\\_alllayers\\","fileExt":"png","type":"esri","note":"arcgis 切片格式地图"}
+    ],
+	"blankImage":"blank.png",
+	"port":4000
+}
