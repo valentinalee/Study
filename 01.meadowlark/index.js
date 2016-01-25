@@ -11,13 +11,31 @@ app.set('view engine', 'handlebars');
 
 app.use(express.static(__dirname + '/public'));
 
+app.use(function(req, res, next){
+    res.locals.showTests = app.get('env') !== 'production' &&
+    req.query.test === '1';
+    next();
+});
+// 路由放在这里
 app.get('/', function(req, res) {
     res.render('home');
 });
 
 app.get('/about', function(req, res) {
-    res.render('about', { fortune: fortune.getFortune() } );
+    res.render('about', { 
+            fortune: fortune.getFortune(),
+            pageTestScript: '/qa/tests-about.js'
+        });
 });
+
+app.get('/tours/hood-river', function(req, res){
+    res.render('tours/hood-river');
+});
+
+app.get('/tours/request-group-rate', function(req, res){
+    res.render('tours/request-group-rate');
+});
+
 // 404 catch-all 处理器（中间件）
 app.use(function(req, res, next){
     res.status(404);
