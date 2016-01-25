@@ -2,13 +2,7 @@ var express = require('express');
 var app = express();
 app.set('port', process.env.PORT || 3000);
 
-var fortunes = [
-"Conquer your fears or they will conquer you.",
-"Rivers need springs.",
-"Do not fear what you don't know.",
-"You will have a pleasant surprise.",
-"Whenever possible, keep it simple.",
-];
+var fortune = require('./lib/fortune.js');
 
 // 设置handlebars 视图引擎
 var handlebars = require('express-handlebars').create({ defaultLayout:'main' });
@@ -22,9 +16,7 @@ app.get('/', function(req, res) {
 });
 
 app.get('/about', function(req, res) {
-    var randomFortune =
-    fortunes[Math.floor(Math.random() * fortunes.length)];
-    res.render('about', { fortune: randomFortune });
+    res.render('about', { fortune: fortune.getFortune() } );
 });
 // 404 catch-all 处理器（中间件）
 app.use(function(req, res, next){
