@@ -12,7 +12,7 @@ module.exports = function(grunt){
 	// configure plugins
 	grunt.initConfig({
 		cafemocha: {
-			all: { src: 'qa/tests-*.js', options: { ui: 'tdd' }, }
+			all: { src: 'qa/tests-*.js', options: { ui: 'tdd' ,timeout:10000}, }
 		},
 		jshint: {
 			app: ['meadowlark.js', 'public/js/**/*.js', 'lib/**/*.js'],

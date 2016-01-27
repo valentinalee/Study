@@ -1,0 +1,4 @@
+需要npm全局安装的模块：
+npm install -g mocha
+npm install -g jshint
+npm install -g grunt-cli
