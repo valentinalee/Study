@@ -9,6 +9,8 @@ var handlebars = require('express-handlebars').create({ defaultLayout:'main' });
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 
+app.disable('x-powered-by');
+
 app.use(express.static(__dirname + '/public'));
 
 app.use(function(req, res, next){
@@ -38,6 +40,13 @@ app.get('/tours/oregon-coast', function(req, res){
 
 app.get('/tours/request-group-rate', function(req, res){
     res.render('tours/request-group-rate');
+});
+
+app.get('/headers', function(req,res){
+    res.set('Content-Type','text/plain');
+    var s = '';
+    for(var name in req.headers) s += name + ': ' + req.headers[name] + '\n';
+    res.send(s);
 });
 
 // 404 catch-all 处理器（中间件）
