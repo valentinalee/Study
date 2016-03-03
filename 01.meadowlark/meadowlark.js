@@ -15,12 +15,6 @@ var app = express();
 
 var credentials = require('./credentials.js');
 
-// twitter library
-var twitter = require('./lib/twitter')({
-	consumerKey: credentials.twitter.consumerKey,
-	consumerSecret: credentials.twitter.consumerSecret,
-});
-
 var emailService = require('./lib/email.js')(credentials);
 
 // set up handlebars view engine
@@ -411,45 +405,6 @@ app.use(function(req, res, next){
 	if(!res.locals.partials) res.locals.partials = {};
  	res.locals.partials.weatherContext = getWeatherData();
  	next();
-});
-
-// twitter integration
-var topTweets = {
-	count: 10,
-	lastRefreshed: 0,
-	refreshInterval: 15 * 60 * 1000,
-	tweets: [],
-};
-function getTopTweets(cb){
-	if(Date.now() < topTweets.lastRefreshed + topTweets.refreshInterval) {
-		return setImmediate(function() {
-            cb(topTweets.tweets);
-        });
-    }
-
-	twitter.search('#travel', topTweets.count, function(result){
-		var formattedTweets = [];
-		var embedOpts = { omit_script: 1 };
-		var promises = result.statuses.map(function(status){
-            return Q.Promise(function(resolve){
-    			twitter.embed(status.id_str, embedOpts, function(embed){
-    				formattedTweets.push(embed.html);
-    				resolve();
-    			});
-            });
-		});
-		Q.all(promises).then(function(){
-			topTweets.lastRefreshed = Date.now();
-			cb(topTweets.tweets = formattedTweets);
-		});
-	});
-}
-// mmiddleware to add top tweets to context
-app.use(function(req, res, next) {
-	getTopTweets(function(tweets) {
-		res.locals.topTweets = tweets;
-		next();
-	});
 });
 
 // middleware to handle logo image easter eggs
