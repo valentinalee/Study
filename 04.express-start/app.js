@@ -18,17 +18,22 @@ var users = require('./routes/users');
 
 var app = express();
 
+/**
+ * Express configuration.
+ */
+app.set('port', process.env.PORT || 3000);
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hjs');
 
 // uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(favicon(path.join(__dirname, 'public', 'favicon.png')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: 31557600000 }));
 
 app.use('/', routes);
 app.use('/users', users);
@@ -64,5 +69,11 @@ app.use(function(err, req, res, next) {
   });
 });
 
+/**
+ * Start Express server.
+ */
+app.listen(app.get('port'), function() {
+  console.log('Express server listening on port %d in %s mode', app.get('port'), app.get('env'));
+});
 
 module.exports = app;
