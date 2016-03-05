@@ -1,0 +1,36 @@
+<div class="navbar navbar-default navbar-fixed-top">
+	<div class="container">
+		<div class="navbar-header">
+			<button type="button" data-toggle="collapse" data-target=".navbar-collapse" class="navbar-toggle">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a href="/" class="navbar-brand"><i class="fa fa-cube"></i>Project name</a>
+		</div>
+		<div class="collapse navbar-collapse">
+			<ul class="nav navbar-nav">
+				<li class="{{#ifEq title 'Home'}} active {{/ifEq}}"><a href="/">Home</a></li>
+				<li class="{{#ifEq title 'Contact'}} active {{/ifEq}}"><a href="/contact">Contact</a></li>
+			</ul>
+			<ul class="nav navbar-nav navbar-right">
+				{{#if user}}
+					<li class="dropdown {{#ifEq title 'Account Management'}} active {{/ifEq}}">
+						<a href="#" data-toggle="dropdown" class="dropdown-toggle">
+							<i class="fa fa-user fa-2x"></i>c@z.com&nbsp;<i class="caret"></i>
+						</a>
+						<ul class="dropdown-menu">
+							<li><a href="/user/account">My Account</a></li>
+							<li class="divider"></li>
+							<li><a href="/user/logout">Logout</a></li>
+						</ul>
+					</li>
+				{{else}}
+					<li class="{{#ifEq title 'Login'}} active {{/ifEq}}"><a href="/user/login">Login</a></li>
+					<li class="{{#ifEq title 'Create Account'}} active {{/ifEq}}"><a href="/user/signup">Create Account</a></li>
+				{{/if}}
+			</ul>
+		</div>
+	</div>
+</div>

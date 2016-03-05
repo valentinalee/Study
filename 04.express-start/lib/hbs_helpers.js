@@ -1,0 +1,59 @@
+var register = function(Handlebars) {
+
+    var helpers = {
+      section: function(name, options){
+          if(!this._sections) this._sections = {};
+          this._sections[name] = options.fn(this);
+          return null;
+      },
+      ifEq:function(v1, v2, options) {
+        if(v1 === v2) {
+          return options.fn(this);
+        }
+        return options.inverse(this);
+      },
+      ifCond:function (v1, operator, v2, options) {
+        switch (operator) {
+            case '==':
+                return (v1 == v2) ? options.fn(this) : options.inverse(this);
+            case '===':
+                return (v1 === v2) ? options.fn(this) : options.inverse(this);
+            case '<':
+                return (v1 < v2) ? options.fn(this) : options.inverse(this);
+            case '<=':
+                return (v1 <= v2) ? options.fn(this) : options.inverse(this);
+            case '>':
+                return (v1 > v2) ? options.fn(this) : options.inverse(this);
+            case '>=':
+                return (v1 >= v2) ? options.fn(this) : options.inverse(this);
+            case '&&':
+                return (v1 && v2) ? options.fn(this) : options.inverse(this);
+            case '||':
+                return (v1 || v2) ? options.fn(this) : options.inverse(this);
+            default:
+                return options.inverse(this);
+        }
+      }
+    };
+
+    if (Handlebars && typeof Handlebars.registerHelper === "function") {
+        // register helpers
+        for (var prop in helpers) {
+            Handlebars.registerHelper(prop, helpers[prop]);
+        }
+    } else {
+        // just return helpers object if we can't register helpers here
+        return helpers;
+    }
+
+};
+
+// client
+if (typeof window !== "undefined") {
+    register(Handlebars);
+}
+// server
+else {
+    module.exports.register = register;
+    module.exports.helpers = register(null);
+}
