@@ -1,3 +1,5 @@
+/*global Handlebars:true*/
+
 var register = function(Handlebars) {
 
     var helpers = {
