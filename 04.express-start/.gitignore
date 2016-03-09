@@ -33,6 +33,7 @@ npm-debug.log
 # Editors
 .idea
 *.iml
+*.sublime-workspace
 
 # OS metadata
 .DS_Store
