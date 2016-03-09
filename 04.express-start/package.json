@@ -1,9 +1,11 @@
 {
   "name": "express-start",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "debug": "node --debug app.js",
+    "test": "mocha --reporter spec --timeout 5000"
   },
   "dependencies": {
     "async": "^1.5.2",
@@ -28,6 +30,8 @@
     "serve-favicon": "~2.3.0"
   },
   "devDependencies": {
-    "grunt": "^0.4.5"
+    "chai": "^3.5.0",
+    "mocha": "^2.4.5",
+    "supertest": "^1.2.0"
   }
 }
