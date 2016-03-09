@@ -6,7 +6,7 @@ var cookieParser = require('cookie-parser');
 var compress = require('compression');
 var session = require('express-session');
 var bodyParser = require('body-parser');
-var logger = require('morgan');
+var morgan = require('morgan');
 var lusca = require('lusca');
 var dotenv = require('dotenv');
 var MongoStore = require('connect-mongo/es5')(session);
@@ -16,6 +16,7 @@ var mongoose = require('mongoose');
 var passport = require('passport');
 var expressValidator = require('express-validator');
 var favicon = require('serve-favicon');
+var logger = require("./lib/logger");
 
 /**
  * Load environment variables from .env file, where API keys and passwords are configured.
@@ -34,7 +35,7 @@ var app = express();
  */
 mongoose.connect(process.env.MONGODB || process.env.MONGOLAB_URI);
 mongoose.connection.on('error', function() {
-  console.log('MongoDB Connection Error. Please make sure that MongoDB is running.');
+  logger.error('MongoDB Connection Error. Please make sure that MongoDB is running.');
   process.exit(1);
 });
 
@@ -55,7 +56,12 @@ app.set('view engine', 'hbs');
 
 app.use(favicon(path.join(__dirname, 'public', 'favicon.png')));
 app.use(compress());
-app.use(logger('dev'));
+
+if (app.get('env') == 'production') {
+  app.use(morgan('common', { skip: function(req, res) { return res.statusCode < 400 },stream: logger.stream}));
+} else {
+  app.use(morgan('dev'));
+}
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(expressValidator());
@@ -119,7 +125,7 @@ app.use(function(err, req, res, next) {
  * Start Express server.
  */
 app.listen(app.get('port'), function() {
-  console.log('Express server listening on port %d in %s mode', app.get('port'), app.get('env'));
+  logger.info('Express server listening on port %d in %s mode', app.get('port'), app.get('env'));
 });
 
 module.exports = app;
