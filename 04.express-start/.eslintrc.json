@@ -1,7 +1,16 @@
 {
-	"env": {
-		"node": true,
-		"mocha": true
-	},
-    "extends": "eslint:recommended"
+  "env": {
+    "node": true,
+    "mocha": true,
+    "es6": true
+  },
+  "rules": {
+    "strict": 1,
+    "max-len": 0,
+    "no-param-reassign": [2, { "props": false }]
+  },
+  "extends": "airbnb",
+  "plugins": [
+    "react"
+  ]
 }
