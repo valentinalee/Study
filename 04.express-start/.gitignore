@@ -41,3 +41,6 @@ Thumbs.db
 
 # API keys and secrets
 .env
+
+#jsDoc
+out

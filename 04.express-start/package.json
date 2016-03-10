@@ -6,7 +6,8 @@
     "start": "node app.js",
     "debug": "node --debug app.js",
     "test": "mocha --reporter spec --timeout 5000",
-    "eslint": "eslint app.js controllers/** lib/** models/** routes/** test/**"
+    "eslint": "eslint app.js controllers/** lib/** models/** routes/** test/**",
+    "doc": "jsdoc -c .jsdoc.json"
   },
   "dependencies": {
     "async": "^1.5.2",
@@ -36,6 +37,7 @@
     "eslint": "^2.3.0",
     "eslint-config-airbnb": "^6.1.0",
     "eslint-plugin-react": "^4.2.1",
+    "jsdoc": "^3.4.0",
     "mocha": "^2.4.5",
     "supertest": "^1.2.0"
   }
