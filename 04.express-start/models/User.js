@@ -1,8 +1,8 @@
-var bcrypt = require('bcrypt-nodejs');
-var crypto = require('crypto');
-var mongoose = require('mongoose');
+const bcrypt = require('bcrypt-nodejs');
+const crypto = require('crypto');
+const mongoose = require('mongoose');
 
-var userSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
   email: { type: String, lowercase: true, unique: true },
   password: String,
   passwordResetToken: String,
@@ -22,25 +22,25 @@ var userSchema = new mongoose.Schema({
     gender: { type: String, default: '' },
     location: { type: String, default: '' },
     website: { type: String, default: '' },
-    picture: { type: String, default: '' }
-  }
+    picture: { type: String, default: '' },
+  },
 }, { timestamps: true });
 
 /**
  * Password hash middleware.
  */
-userSchema.pre('save', function(next) {
-  var user = this;
+userSchema.pre('save', (next) => {
+  const user = this;
   if (!user.isModified('password')) {
-    return next();
+    next();
   }
-  bcrypt.genSalt(10, function(err, salt) {
+  bcrypt.genSalt(10, (err, salt) => {
     if (err) {
-      return next(err);
+      next(err);
     }
-    bcrypt.hash(user.password, salt, null, function(err, hash) {
-      if (err) {
-        return next(err);
+    bcrypt.hash(user.password, salt, null, (error, hash) => {
+      if (error) {
+        next(error);
       }
       user.password = hash;
       next();
@@ -51,29 +51,27 @@ userSchema.pre('save', function(next) {
 /**
  * Helper method for validating user's password.
  */
-userSchema.methods.comparePassword = function(candidatePassword, cb) {
-  bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
+userSchema.methods.comparePassword = (candidatePassword, cb) => {
+  bcrypt.compare(candidatePassword, this.password, (err, isMatch) => {
     if (err) {
       return cb(err);
     }
-    cb(null, isMatch);
+    return cb(null, isMatch);
   });
 };
 
 /**
  * Helper method for getting user's gravatar.
  */
-userSchema.methods.gravatar = function(size) {
-  if (!size) {
-    size = 200;
-  }
+userSchema.methods.gravatar = (size) => {
+  const s = size || 200;
   if (!this.email) {
-    return 'https://gravatar.com/avatar/?s=' + size + '&d=retro';
+    return 'https://gravatar.com/avatar/?s=${s}&d=retro';
   }
-  var md5 = crypto.createHash('md5').update(this.email).digest('hex');
-  return 'https://gravatar.com/avatar/' + md5 + '?s=' + size + '&d=retro';
+  const md5 = crypto.createHash('md5').update(this.email).digest('hex');
+  return 'https://gravatar.com/avatar/${md5}?s=${s}&d=retro';
 };
 
-var User = mongoose.model('User', userSchema);
+const User = mongoose.model('User', userSchema);
 
 module.exports = User;

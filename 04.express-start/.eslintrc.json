@@ -7,7 +7,9 @@
   "rules": {
     "strict": 1,
     "max-len": 0,
-    "no-param-reassign": [2, { "props": false }]
+    "no-param-reassign": [2, { "props": false }],
+    "no-unused-vars": [1, {"vars": "all", "args": "none"}],
+    "eqeqeq": 1
   },
   "extends": "airbnb",
   "plugins": [

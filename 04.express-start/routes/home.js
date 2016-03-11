@@ -1,8 +1,8 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = new express.Router();
 
-var homeController = require('../controllers/home');
-var contactController = require('../controllers/contact');
+const homeController = require('../controllers/home');
+const contactController = require('../controllers/contact');
 
 router.get('/', homeController.index);
 

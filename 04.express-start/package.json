@@ -6,7 +6,7 @@
     "start": "node app.js",
     "debug": "node --debug app.js",
     "test": "mocha --reporter spec --timeout 5000",
-    "eslint": "eslint app.js controllers/** lib/** models/** routes/** test/**",
+    "lint": "eslint app.js controllers/** lib/** models/** routes/** test/**",
     "doc": "jsdoc -c .jsdoc.json"
   },
   "dependencies": {

@@ -1,15 +1,15 @@
-var _ = require('lodash');
-var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
+const _ = require('lodash');
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
 
-var User = require('../models/User');
+const User = require('../models/User');
 
-passport.serializeUser(function(user, done) {
+passport.serializeUser((user, done) => {
   done(null, user.id);
 });
 
-passport.deserializeUser(function(id, done) {
-  User.findById(id, function(err, user) {
+passport.deserializeUser((id, done) => {
+  User.findById(id, (err, user) => {
     done(err, user);
   });
 });
@@ -18,16 +18,16 @@ passport.deserializeUser(function(id, done) {
 /**
  * Sign in using Email and Password.
  */
-passport.use(new LocalStrategy({ usernameField: 'email' }, function(email, password, done) {
-  User.findOne({ email: email.toLowerCase() }, function(err, user) {
+passport.use(new LocalStrategy({ usernameField: 'email' }, (email, password, done) => {
+  User.findOne({ email: email.toLowerCase() }, (err, user) => {
     if (!user) {
-      return done(null, false, { message: 'Email ' + email + ' not found.' });
+      done(null, false, { message: 'Email ${email} not found.' });
     }
-    user.comparePassword(password, function(err, isMatch) {
+    user.comparePassword(password, (error, isMatch) => {
       if (isMatch) {
-        return done(null, user);
+        done(null, user);
       } else {
-        return done(null, false, { message: 'Invalid email or password.' });
+        done(null, false, { message: 'Invalid email or password.' });
       }
     });
   });
@@ -36,9 +36,9 @@ passport.use(new LocalStrategy({ usernameField: 'email' }, function(email, passw
 /**
  * Login Required middleware.
  */
-exports.isAuthenticated = function(req, res, next) {
+exports.isAuthenticated = (req, res, next) => {
   if (req.isAuthenticated()) {
-    return next();
+    next();
   }
   res.redirect('/login');
 };
@@ -46,12 +46,12 @@ exports.isAuthenticated = function(req, res, next) {
 /**
  * Authorization Required middleware.
  */
-exports.isAuthorized = function(req, res, next) {
-  var provider = req.path.split('/').slice(-1)[0];
+exports.isAuthorized = (req, res, next) => {
+  const provider = req.path.split('/').slice(-1)[0];
 
   if (_.find(req.user.tokens, { kind: provider })) {
     next();
   } else {
-    res.redirect('/auth/' + provider);
+    res.redirect('/auth/${provider}');
   }
 };
