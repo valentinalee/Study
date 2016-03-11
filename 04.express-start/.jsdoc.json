@@ -4,7 +4,7 @@
     "dictionaries": ["jsdoc", "closure"]
   },
   "source": {
-    "include": [ "app.js", "./lib", "./controllers","./models" ],
+    "include": [ "README.md", "./lib", "./controllers","./models" ],
     "exclude": [ ],
     "includePattern": ".+\\.js(doc)?$",
     "excludePattern": "(^|\\/|\\\\)_"

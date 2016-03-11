@@ -1,3 +1,8 @@
+/**
+ * User module.
+ * @module user
+ */
+
 const _ = require('lodash');
 const async = require('async');
 const crypto = require('crypto');

@@ -1,4 +1,9 @@
 /**
+ * Home module.
+ * @module home/index
+ */
+
+/**
  * GET /
  * Home page.
  */

@@ -1,3 +1,8 @@
+/**
+ * Contact module.
+ * @module home/contact
+ */
+
 const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
   service: 'SendGrid',
