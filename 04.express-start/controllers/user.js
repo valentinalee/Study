@@ -35,23 +35,23 @@ exports.postLogin = (req, res, next) => {
 
   if (errors) {
     req.flash('errors', errors);
-    res.redirect('/user/login');
+    return res.redirect('/user/login');
   }
 
   passport.authenticate('local', (err, user, info) => {
     if (err) {
-      next(err);
+      return next(err);
     }
     if (!user) {
       req.flash('errors', { msg: info.message });
-      res.redirect('/user/login');
+      return res.redirect('/user/login');
     }
     req.logIn(user, (error) => {
       if (error) {
-        next(error);
+        return next(error);
       }
       req.flash('success', { msg: 'Success! You are logged in.' });
-      res.redirect(req.session.returnTo || '/');
+      return res.redirect(req.session.returnTo || '/');
     });
   })(req, res, next);
 };
@@ -102,17 +102,17 @@ exports.postSignup = (req, res, next) => {
   User.findOne({ email: req.body.email }, (err, existingUser) => {
     if (existingUser) {
       req.flash('errors', { msg: 'Account with that email address already exists.' });
-      res.redirect('/user/signup');
+      return res.redirect('/user/signup');
     }
     user.save((err1) => {
       if (err1) {
-        next(err1);
+        return next(err1);
       }
       req.logIn(user, (err2) => {
         if (err2) {
-          next(err2);
+          return next(err2);
         }
-        res.redirect('/');
+        return res.redirect('/');
       });
     });
   });
@@ -135,7 +135,7 @@ exports.getAccount = (req, res) => {
 exports.postUpdateProfile = (req, res, next) => {
   User.findById(req.user.id, (err, user) => {
     if (err) {
-      next(err);
+      return next(err);
     }
     user.email = req.body.email || '';
     user.profile.name = req.body.name || '';
@@ -144,10 +144,10 @@ exports.postUpdateProfile = (req, res, next) => {
     user.profile.website = req.body.website || '';
     user.save((err1) => {
       if (err1) {
-        next(err1);
+        return next(err1);
       }
       req.flash('success', { msg: 'Profile information updated.' });
-      res.redirect('/user/account');
+      return res.redirect('/user/account');
     });
   });
 };
@@ -164,20 +164,20 @@ exports.postUpdatePassword = (req, res, next) => {
 
   if (errors) {
     req.flash('errors', errors);
-    res.redirect('/user/account');
+    return res.redirect('/user/account');
   }
 
   User.findById(req.user.id, (err, user) => {
     if (err) {
-      next(err);
+      return next(err);
     }
     user.password = req.body.password;
     user.save((err1) => {
       if (err1) {
-        next(err1);
+        return next(err1);
       }
       req.flash('success', { msg: 'Password has been changed.' });
-      res.redirect('/user/account');
+      return res.redirect('/user/account');
     });
   });
 };
@@ -189,11 +189,11 @@ exports.postUpdatePassword = (req, res, next) => {
 exports.postDeleteAccount = (req, res, next) => {
   User.remove({ _id: req.user.id }, (err) => {
     if (err) {
-      next(err);
+      return next(err);
     }
     req.logout();
     req.flash('info', { msg: 'Your account has been deleted.' });
-    res.redirect('/');
+    return res.redirect('/');
   });
 };
 
@@ -205,14 +205,14 @@ exports.getOauthUnlink = (req, res, next) => {
   const provider = req.params.provider;
   User.findById(req.user.id, (err, user) => {
     if (err) {
-      next(err);
+      return next(err);
     }
     user[provider] = undefined;
     user.tokens = _.reject(user.tokens, (token) => token.kind === provider);
     user.save((err1) => {
-      if (err1) next(err1);
-      req.flash('info', { msg: '${provider} account has been unlinked.' });
-      res.redirect('/user/account');
+      if (err1) return next(err1);
+      req.flash('info', { msg: `${provider} account has been unlinked.` });
+      return res.redirect('/user/account');
     });
   });
 };
@@ -223,18 +223,18 @@ exports.getOauthUnlink = (req, res, next) => {
  */
 exports.getReset = (req, res, next) => {
   if (req.isAuthenticated()) {
-    res.redirect('/');
+    return res.redirect('/');
   }
   User
     .findOne({ passwordResetToken: req.params.token })
     .where('passwordResetExpires').gt(Date.now())
     .exec((err, user) => {
       if (err) {
-        next(err);
+        return next(err);
       }
       if (!user) {
         req.flash('errors', { msg: 'Password reset token is invalid or has expired.' });
-        res.redirect('/user/forgot');
+        return res.redirect('/user/forgot');
       }
       res.render('account/reset', {
         title: 'Password Reset',
@@ -254,7 +254,7 @@ exports.postReset = (req, res, next) => {
 
   if (errors) {
     req.flash('errors', errors);
-    res.redirect('back');
+    return res.redirect('back');
   }
 
   async.waterfall([
@@ -264,18 +264,18 @@ exports.postReset = (req, res, next) => {
         .where('passwordResetExpires').gt(Date.now())
         .exec((err, user) => {
           if (err) {
-            next(err);
+            return next(err);
           }
           if (!user) {
             req.flash('errors', { msg: 'Password reset token is invalid or has expired.' });
-            res.redirect('back');
+            return res.redirect('back');
           }
           user.password = req.body.password;
           user.passwordResetToken = undefined;
           user.passwordResetExpires = undefined;
           user.save((err1) => {
             if (err1) {
-              next(err1);
+              return next(err1);
             }
             req.logIn(user, (err2) => {
               done(err2, user);
@@ -296,7 +296,7 @@ exports.postReset = (req, res, next) => {
         from: 'hackathon@starter.com',
         subject: 'Your Hackathon Starter password has been changed',
         text: 'Hello,\n\n' +
-          'This is a confirmation that the password for your account ${user.email} has just been changed.\n',
+          `This is a confirmation that the password for your account ${user.email} has just been changed.\n`,
       };
       transporter.sendMail(mailOptions, (err) => {
         req.flash('success', { msg: 'Success! Your password has been changed.' });
@@ -305,9 +305,9 @@ exports.postReset = (req, res, next) => {
     },
   ], (err) => {
     if (err) {
-      next(err);
+      return next(err);
     }
-    res.redirect('/');
+    return res.redirect('/');
   });
 };
 
@@ -335,7 +335,7 @@ exports.postForgot = (req, res, next) => {
 
   if (errors) {
     req.flash('errors', errors);
-    res.redirect('/user/forgot');
+    return res.redirect('/user/forgot');
   }
 
   async.waterfall([
@@ -349,7 +349,7 @@ exports.postForgot = (req, res, next) => {
       User.findOne({ email: req.body.email.toLowerCase() }, (err, user) => {
         if (!user) {
           req.flash('errors', { msg: 'No account with that email address exists.' });
-          res.redirect('/user/forgot');
+          return res.redirect('/user/forgot');
         }
         user.passwordResetToken = token;
         user.passwordResetExpires = Date.now() + 3600000; // 1 hour
@@ -372,18 +372,18 @@ exports.postForgot = (req, res, next) => {
         subject: 'Reset your password on Hackathon Starter',
         text: 'You are receiving this email because you (or someone else) have requested the reset of the password for your account.\n\n' +
           'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
-          'http://${req.headers.host}/reset/${token}\n\n' +
+          `http://${req.headers.host}/reset/${token}\n\n` +
           'If you did not request this, please ignore this email and your password will remain unchanged.\n',
       };
       transporter.sendMail(mailOptions, (err) => {
-        req.flash('info', { msg: 'An e-mail has been sent to ${user.email} with further instructions.' });
+        req.flash('info', { msg: `An e-mail has been sent to ${user.email} with further instructions.` });
         done(err, 'done');
       });
     },
   ], (err) => {
     if (err) {
-      next(err);
+      return next(err);
     }
-    res.redirect('/user/forgot');
+    return res.redirect('/user/forgot');
   });
 };

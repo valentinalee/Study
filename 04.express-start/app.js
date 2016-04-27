@@ -98,7 +98,7 @@ app.use('/user', userRoute);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
-  const err = new Error('${req.path} Not Found');
+  const err = new Error(`${req.path} Not Found`);
   err.status = 404;
   next(err);
 });

@@ -21,7 +21,7 @@ passport.deserializeUser((id, done) => {
 passport.use(new LocalStrategy({ usernameField: 'email' }, (email, password, done) => {
   User.findOne({ email: email.toLowerCase() }, (err, user) => {
     if (!user) {
-      done(null, false, { message: 'Email ${email} not found.' });
+      done(null, false, { message: `Email ${email} not found.` });
     }
     user.comparePassword(password, (error, isMatch) => {
       if (isMatch) {
@@ -38,9 +38,9 @@ passport.use(new LocalStrategy({ usernameField: 'email' }, (email, password, don
  */
 exports.isAuthenticated = (req, res, next) => {
   if (req.isAuthenticated()) {
-    next();
+    return next();
   }
-  res.redirect('/login');
+  return res.redirect('/user/login');
 };
 
 /**
@@ -52,6 +52,6 @@ exports.isAuthorized = (req, res, next) => {
   if (_.find(req.user.tokens, { kind: provider })) {
     next();
   } else {
-    res.redirect('/auth/${provider}');
+    res.redirect(`/auth/${provider}`);
   }
 };

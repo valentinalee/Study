@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema({
 /**
  * Password hash middleware.
  */
-userSchema.pre('save', (next) => {
+userSchema.pre('save', function (next) {
   const user = this;
   if (!user.isModified('password')) {
     next();
@@ -51,7 +51,7 @@ userSchema.pre('save', (next) => {
 /**
  * Helper method for validating user's password.
  */
-userSchema.methods.comparePassword = (candidatePassword, cb) => {
+userSchema.methods.comparePassword = function (candidatePassword, cb) {
   bcrypt.compare(candidatePassword, this.password, (err, isMatch) => {
     if (err) {
       return cb(err);
@@ -66,10 +66,10 @@ userSchema.methods.comparePassword = (candidatePassword, cb) => {
 userSchema.methods.gravatar = (size) => {
   const s = size || 200;
   if (!this.email) {
-    return 'https://gravatar.com/avatar/?s=${s}&d=retro';
+    return `https://gravatar.com/avatar/?s=${s}&d=retro`;
   }
   const md5 = crypto.createHash('md5').update(this.email).digest('hex');
-  return 'https://gravatar.com/avatar/${md5}?s=${s}&d=retro';
+  return `https://gravatar.com/avatar/${md5}?s=${s}&d=retro`;
 };
 
 const User = mongoose.model('User', userSchema);
