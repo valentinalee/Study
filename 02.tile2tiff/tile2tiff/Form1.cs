@@ -24,6 +24,7 @@ namespace tile2tiff
         const double MaxLatitude = 85.05112878;
         const double MinLongitude = -180;
         const double MaxLongitude = 180;
+        const decimal EarthCircumference = 40075016.68557849m;
 
         private string fileExt = ".jpg";
 
@@ -586,6 +587,18 @@ namespace tile2tiff
         {
             StringBuilder sb = new StringBuilder();
 
+            decimal resolution = EarthCircumference / 256 / (decimal)Math.Pow(2, tilesBounds.zoomLevel);
+            
+
+            //EPSG:3857
+            sb.AppendLine(resolution.ToString());//X方向上的象素分辨素
+            sb.AppendLine("0");//X方向的旋转系数
+            sb.AppendLine("0");//Y方向的旋转系数
+            sb.AppendLine( "-" + resolution.ToString());//Y方向上的象素分辨率
+            sb.AppendLine(((tilesBounds.minCol * 256m + 0.5m) * resolution - EarthCircumference / 2).ToString());//左上角象素中心X坐标
+            sb.AppendLine((EarthCircumference / 2 - (tilesBounds.minRow * 256m + 0.5m) * resolution).ToString());//左上角象素中心Y坐标
+
+            /* EPSG:4326
             int imageWidth = 256 * (tilesBounds.maxCol - tilesBounds.minCol + 1);
             int imageHeight = 256 * (tilesBounds.maxRow - tilesBounds.minRow + 1);
 
@@ -598,6 +611,7 @@ namespace tile2tiff
             sb.AppendLine(((p2.Y - p1.Y) / imageHeight).ToString());//Y方向上的象素分辨率
             sb.AppendLine((p1.X).ToString());//左上角象素中心X坐标
             sb.AppendLine((p1.Y).ToString());//左上角象素中心Y坐标
+            */
 
             File.WriteAllText(outTfwFileName,sb.ToString());
         }
@@ -658,7 +672,7 @@ namespace tile2tiff
         //合并单个Tiff文件
         private void CombineSingleTiff(BackgroundWorker worker, TilesBounds tilesBounds, string tilePath, string outPutFilePath)
         {
-            string outPutFileName = Path.Combine(outPutFilePath, string.Format("x{0}-{1}_y{2}-{3}.tif", tilesBounds.minRow, tilesBounds.maxRow, tilesBounds.minCol, tilesBounds.maxCol));
+            string outPutFileName = Path.Combine(outPutFilePath, string.Format("x{2}-{3}_y{0}-{1}.tif", tilesBounds.minRow, tilesBounds.maxRow, tilesBounds.minCol, tilesBounds.maxCol));
 
             worker.ReportProgress(tilesBounds.minCol, string.Format("开始生成TIFF文件：{0}", outPutFileName));
             if (File.Exists(outPutFileName))

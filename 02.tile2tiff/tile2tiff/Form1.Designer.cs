@@ -378,7 +378,7 @@
             this.txtGoogleRasterV.Name = "txtGoogleRasterV";
             this.txtGoogleRasterV.Size = new System.Drawing.Size(41, 21);
             this.txtGoogleRasterV.TabIndex = 40;
-            this.txtGoogleRasterV.Text = "189";
+            this.txtGoogleRasterV.Text = "200";
             // 
             // btnChina
             // 
