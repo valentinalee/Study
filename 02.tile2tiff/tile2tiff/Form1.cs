@@ -25,7 +25,7 @@ namespace tile2tiff
         const double MinLongitude = -180;
         const double MaxLongitude = 180;
         const decimal EarthCircumference = 40075016.68557849m;
-        const double DownloadSpeed = 30; //下载速度,张/每秒
+        const double DownloadSpeed = 30; //下载速度,张/每分
 
         private string fileExt = ".jpg";
 
@@ -453,7 +453,7 @@ namespace tile2tiff
             textMaxRow.Text = CorrectTileIndex(minP.Y, level).ToString();
 
             double tile_count = (maxP.X - minP.X) * (minP.Y - maxP.Y);
-            double down_time = tile_count / DownloadSpeed /60 /60; //小时
+            double down_time = tile_count / DownloadSpeed /60; //小时
 
             setMsg(string.Format("瓦片总数：{0} ,下载需约{1}小时({2}天,下载速度：{3}张/秒)",tile_count, down_time, down_time/24,DownloadSpeed));
         }
