@@ -5,7 +5,7 @@ module.exports = {
     devtool: 'source-map',
     entry: {
         app: './src/main.js',
-        vendor: ['jquery', 'bootstrap', 'bootstrap.css', 'bootstrap-theme.css', 'font-awesome'],
+        vendor: ['jquery', 'bootstrap', 'bootstrap.css', 'bootstrap-theme.css', 'font-awesome', 'lodash'],
     },
     output: {
         filename: './dist/bundle.js'

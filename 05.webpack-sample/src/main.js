@@ -5,8 +5,10 @@ $('h1').text('Hello World');
 
 $('#myButton').on('click', function() {
     var $btn = $(this).button('loading');
-    // business logic...
-    //$btn.button('reset');
+    var infoHtml = require('./view/info.html');
+    var tmp = _.template(infoHtml);
+    var result = tmp({title:'Hello'});
+    $('#infoModel').html(result);
 
-    $('#infoModel').html(require('./view/info.html'));
-})
+    //$btn.button('reset');
+});
