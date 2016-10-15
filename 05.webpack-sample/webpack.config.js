@@ -1,5 +1,6 @@
 var webpack = require('webpack');
 var uglifyJsPlugin = webpack.optimize.UglifyJsPlugin;
+var CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
     devtool: 'source-map',
@@ -8,14 +9,15 @@ module.exports = {
         vendor: ['jquery', 'bootstrap', 'bootstrap.css', 'bootstrap-theme.css', 'font-awesome', 'lodash'],
     },
     output: {
-        filename: './dist/bundle.js'
+        path: __dirname + "/dist",
+        filename: 'bundle.js'
     },
     module: {
         loaders: [
             { test: require.resolve("jquery"), loader: "expose?$!expose?jQuery" },
             { test: /\.css$/, loader: 'style-loader!css-loader' },
             { test: /\.(jpe?g|png|gif)$/i, loader: 'url-loader?limit=8192' },
-            { test: /\.(woff|woff2|eot|ttf|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/i, loader: 'url?limit=10000&name=dist/fonts/[hash:8].[name].[ext]' },
+            { test: /\.(woff|woff2|eot|ttf|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/i, loader: 'url?limit=10000&name=fonts/[hash:8].[name].[ext]' },
             { test: /\.html$/, loader: "html-loader" }
         ]
     },
@@ -28,7 +30,10 @@ module.exports = {
     },
     plugins: [
         new uglifyJsPlugin({ compress: { warnings: false } }),
-        new webpack.optimize.CommonsChunkPlugin( /* chunkName= */ 'vendor', /* filename= */ './dist/vendor.js')
+        new webpack.optimize.CommonsChunkPlugin( /* chunkName= */ 'vendor', /* filename= */ './vendor.js'),
+        new CopyWebpackPlugin([
+            { from: './src/index.html', to: './index.html' },
+        ]),
         // new webpack.ProvidePlugin({ $: "jquery", jQuery: "jquery", "window.jQuery": "jquery" }),
     ]
 };
