@@ -5,11 +5,11 @@ var CopyWebpackPlugin = require('copy-webpack-plugin');
 module.exports = {
     devtool: 'source-map',
     entry: {
-        app: './src/main.js',
+        app: './frontend/main.js',
         vendor: ['jquery', 'bootstrap', 'bootstrap.css', 'bootstrap-theme.css', 'font-awesome', 'lodash'],
     },
     output: {
-        path: __dirname + "/dist",
+        path: __dirname + "/dist/front",
         filename: 'bundle.js'
     },
     module: {
@@ -32,7 +32,7 @@ module.exports = {
         new uglifyJsPlugin({ compress: { warnings: false } }),
         new webpack.optimize.CommonsChunkPlugin( /* chunkName= */ 'vendor', /* filename= */ './vendor.js'),
         new CopyWebpackPlugin([
-            { from: './src/index.html', to: './index.html' },
+            { from: './frontend/index.html', to: './index.html' },
         ]),
         // new webpack.ProvidePlugin({ $: "jquery", jQuery: "jquery", "window.jQuery": "jquery" }),
     ]

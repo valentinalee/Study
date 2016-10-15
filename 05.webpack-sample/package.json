@@ -4,13 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "webpack --progress --colors",
-    "watch": "webpack --progress --colors --watch"
+    "start": "node dist/back/index.js",
+    "front": "webpack --progress --colors --config webpack-frontend.config.js",
+    "front-watch": "webpack --progress --colors --watch --config webpack-frontend.config.js",
+    "back": "webpack --progress --colors --config webpack-backend.config.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bootstrap": "^3.3.7",
+    "express": "^4.14.0",
     "font-awesome": "^4.6.3",
     "jquery": "^3.1.1",
     "lodash": "^4.16.4"
@@ -21,6 +24,7 @@
     "expose-loader": "^0.7.1",
     "file-loader": "^0.9.0",
     "html-loader": "^0.4.4",
+    "source-map-support": "^0.4.3",
     "style-loader": "^0.13.1",
     "url-loader": "^0.5.7",
     "webpack": "^1.13.2"
