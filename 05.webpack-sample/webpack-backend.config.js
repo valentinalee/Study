@@ -22,7 +22,7 @@ module.exports = {
     },
     externals: nodeModules,
     plugins: [
-        new uglifyJsPlugin({ compress: { warnings: false } }),
+        new uglifyJsPlugin({ compress: { warnings: false } ,mangle:true, sourceMap: true }),
         new webpack.IgnorePlugin(/\.(css|less)$/),
         new webpack.BannerPlugin('require("source-map-support").install();', { raw: true, entryOnly: false })
     ]

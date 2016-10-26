@@ -1,8 +1,8 @@
-var express = require('express');
-var index = require('./index');
-var page = require('./page');
+const express = require('express');
+const index = require('./index');
+const page = require('./page');
 
-var app = express();
+const app = express();
 app.get('/', index);
 app.get('/page', page);
 
