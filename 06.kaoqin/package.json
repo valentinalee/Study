@@ -1,0 +1,17 @@
+{
+  "name": "kaoqin",
+  "version": "1.0.0",
+  "description": "狂苗考勤",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "lodash": "^4.16.4",
+    "moment": "^2.15.2",
+    "xlsx": "^0.8.0"
+  }
+}
