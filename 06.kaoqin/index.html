@@ -1,13 +1,31 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <title>考勤</title>
-  </head>
-  <body>
-    <h1>Hello World!</h1>
-    We are using node <script>document.write(process.versions.node)</script>,
-    Chrome <script>document.write(process.versions.chrome)</script>,
-    and Electron <script>document.write(process.versions.electron)</script>.
-  </body>
+
+<head>
+  <meta charset="UTF-8">
+  <title>考勤统计</title>
+</head>
+
+<body>
+  <div>
+    刷脸记录文件：<input id="txtSL" type="text" readonly="readonly" /><button id="btnSelectSL" type="button">选择</button>
+    <select id="selSL">
+        <option value=""></option>
+      </select>
+  </div>
+  <div>
+    刷卡记录文件：<input id="txtSK" type="text" readonly="readonly" /><button id="btnSelectSK" type="button">选择</button>
+    <select id="selSK">
+        <option value=""></option>
+      </select>
+  </div>
+  <div>
+    结果记录文件：<input id="txtOut" type="text" readonly="readonly" /><button id="btnSelectOut" type="button">选择</button>
+  </div>
+  <div style="text-align:center;margin-top: 10px;">
+    <button type="button">确定</button>
+  </div>
+  <script type="text/javascript" src="js/ui.js"></script>
+</body>
+
 </html>
