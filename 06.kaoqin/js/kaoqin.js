@@ -2,6 +2,23 @@ const _ = require('lodash');
 const moment = require('moment');
 
 function countKaoQin(slSheet,skSheet){
+    const LegalWorkdays = ['2016-09-18','2016-10-08','2016-10-09',];//法定工作日
+    const LegalHolidays = ['2016-09-15','2016-09-16','2016-09-17','2016-10-01','2016-10-02','2016-10-03','2016-10-04','2016-10-05','2016-10-06','2016-10-07',];//法定假日
+    //判断工作日
+    function isWorkday(day){
+        let d = moment(day);
+        // 根据国家法定假日判断工作日、假日
+        if(_.findIndex(LegalHolidays,(o)=> o === day) >= 0){
+            return false;
+        }
+        if(_.findIndex(LegalWorkdays,(o)=> o === day) >= 0){
+            return true;
+        }
+        if(d.day() === 0 || d.day() === 6){//星期天或星期六
+            return false;
+        }
+        return true;
+    }
     //错误名称纠正数据
     const errUserNames = [{from:'王月',to:'王玥'},{from:'陈文利',to:'陈文莉'}];
     function correctUserName(fName){
@@ -170,30 +187,84 @@ function countKaoQin(slSheet,skSheet){
     _.forEach(all_user,function(v){
         let ls = _.filter(allData, ['name', v]);
         let sheet = {};
-        sheet['!ref'] = 'A1:D' + (ls.length);
+        sheet['!ref'] = 'A1:G' + (ls.length + 1);
         sheet['!cols'] = [{wch:8},{wch:10},{wch:8},{wch:8}];
+        //表头
+        sheet['A1'] = { v: 'name' };
+        sheet['B1'] = { v: 'date' };
+        sheet['C1'] = { v: 'start' };
+        sheet['D1'] = { v: 'end' };
+        sheet['E1'] = { v: '工作日' };
+        sheet['F1'] = { v: '迟到早退' };
+        sheet['G1'] = { v: '增加项' };
         for(let i=0;i<ls.length;i++){
-            let r = i + 1;
-            sheet['A' + r] = { v: ls[i].name };
-            sheet['B' + r] = { v: ls[i].date };
-            sheet['C' + r] = { v: ls[i].start };
-            sheet['D' + r] = { v: ls[i].end };
+            let r = i + 2;
+            let v = ls[i];
+            sheet['A' + r] = { v: v.name };
+            sheet['B' + r] = { v: v.date };
+            sheet['C' + r] = { v: v.start };
+            sheet['D' + r] = { v: v.end };
+
+            let workday_count = 0;
+            let workday_plus = 0;
+            let plus_item = 0;
+            //判断是否工作日
+            if(isWorkday(v.date)){
+                workday_count = 1;
+                if(v.start > '09:00:00' || v.end < '16:00:00'){
+                    workday_plus = 1;
+                }
+            } else {
+                let start = moment(v.date + ' ' + v.start);
+                let end = moment(v.date + ' ' + v.end);
+                let dis = (end - start ) / 1000 / 60 /60; //间隔（小时）
+                plus_item = Math.floor(dis/3) * 0.5;
+            }
+            sheet['E' + r] = { v: workday_count };
+            sheet['F' + r] = { v: workday_plus };
+            sheet['G' + r] = { v: plus_item };
+
         }
         sheets[v] = sheet; 
     });
 
     //汇总 sheet
     let total_sheet = {};
-    total_sheet['!ref'] = 'A1:B' + (all_user.length + 1);
+    total_sheet['!ref'] = 'A1:E' + (all_user.length + 1);
     total_sheet['!cols'] = [{wch:8},{wch:10}];
     //表头
     total_sheet['A1'] = { v: '名称' };
-    total_sheet['B1'] = { v: '考勤天' };
+    total_sheet['B1'] = { v: '总考勤天' };
+    total_sheet['C1'] = { v: '工作日考勤天' };
+    total_sheet['D1'] = { v: '迟到早退次数' };
+    total_sheet['E1'] = { v: '增加项' };
     for(let i=0;i<all_user.length;i++){
         let r = i + 2;
         let ls = _.filter(allData, ['name', all_user[i]]);
         total_sheet['A' + r] = { v: all_user[i] };
         total_sheet['B' + r] = { v: ls.length };
+        //循环所有考勤天
+        let workday_count = 0;
+        let workday_plus = 0;
+        let plus_item = 0;
+        _.forEach(ls,function(v,i){
+            //判断是否工作日
+            if(isWorkday(v.date)){
+                workday_count += 1;
+                if(v.start > '09:00:00' || v.end < '16:00:00'){
+                    workday_plus += 1;
+                }
+            } else {
+                let start = moment(v.date + ' ' + v.start);
+                let end = moment(v.date + ' ' + v.end);
+                let dis = (end - start ) / 1000 / 60 /60; //间隔（小时）
+                plus_item += Math.floor(dis/3) * 0.5;
+            }
+        });
+        
+        total_sheet['C' + r] = { v: workday_count };
+        total_sheet['D' + r] = { v: workday_plus };
+        total_sheet['E' + r] = { v: plus_item };
     }
 
     let out_workbook = {
