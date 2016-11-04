@@ -28,6 +28,41 @@ function countKaoQin(slSheet,skSheet){
         }
         return fName;
     }
+    //计算每人每天情况
+    function computeKaoQin(v){
+        let workday_count = 0; //是否工作日
+        let late_early = 0; //迟到早退（只计算工作日）
+        let plus_item = 0; //增加项（仅参考，具体计算待定）
+        if(v){
+            //判断是否工作日
+            if(isWorkday(v.date)){
+                workday_count = 1;
+                if(v.start > '09:30:00' || v.end < '15:30:00'){
+                    late_early = 1;
+                }
+                //计算加班
+                if( (v.end > '16:15:00') && (v.end <= '18:15:00') ){
+                    plus_item = 0.34;
+                } else if( (v.end > '18:15:00') && (v.end <= '20:15:00') ){
+                    plus_item = 0.5;
+                } else if( (v.end > '20:15:00') ){
+                    plus_item = 1;
+                }
+            } else {
+                let start = moment(v.date + ' ' + v.start);
+                let end = moment(v.date + ' ' + v.end);
+                let dis = (end - start ) / 1000 / 60 /60; //间隔（小时）
+                if(dis <= 2){
+                    plus_item = 0.5;
+                } else if( (dis > 2) && (dis <= 3) ) {
+                    plus_item = 1;
+                } else if( (dis > 3) ) {
+                    plus_item = 2;
+                }
+            }
+        }
+        return {workday_count:workday_count,late_early:late_early,plus_item:plus_item};
+    }
 
     //excel列字母编号转为数字（以1开始）
     function colString2int(str){
@@ -205,24 +240,11 @@ function countKaoQin(slSheet,skSheet){
             sheet['C' + r] = { v: v.start };
             sheet['D' + r] = { v: v.end };
 
-            let workday_count = 0;
-            let workday_plus = 0;
-            let plus_item = 0;
-            //判断是否工作日
-            if(isWorkday(v.date)){
-                workday_count = 1;
-                if(v.start > '09:00:00' || v.end < '16:00:00'){
-                    workday_plus = 1;
-                }
-            } else {
-                let start = moment(v.date + ' ' + v.start);
-                let end = moment(v.date + ' ' + v.end);
-                let dis = (end - start ) / 1000 / 60 /60; //间隔（小时）
-                plus_item = Math.floor(dis/3) * 0.5;
-            }
-            sheet['E' + r] = { v: workday_count };
-            sheet['F' + r] = { v: workday_plus };
-            sheet['G' + r] = { v: plus_item };
+            //计算每天情况
+            let day_status = computeKaoQin(v);
+            sheet['E' + r] = { v: day_status.workday_count };
+            sheet['F' + r] = { v: day_status.late_early };
+            sheet['G' + r] = { v: day_status.plus_item };
 
         }
         sheets[v] = sheet; 
@@ -245,25 +267,18 @@ function countKaoQin(slSheet,skSheet){
         total_sheet['B' + r] = { v: ls.length };
         //循环所有考勤天
         let workday_count = 0;
-        let workday_plus = 0;
+        let late_early = 0;
         let plus_item = 0;
         _.forEach(ls,function(v,i){
-            //判断是否工作日
-            if(isWorkday(v.date)){
-                workday_count += 1;
-                if(v.start > '09:00:00' || v.end < '16:00:00'){
-                    workday_plus += 1;
-                }
-            } else {
-                let start = moment(v.date + ' ' + v.start);
-                let end = moment(v.date + ' ' + v.end);
-                let dis = (end - start ) / 1000 / 60 /60; //间隔（小时）
-                plus_item += Math.floor(dis/3) * 0.5;
-            }
+            //计算每天情况
+            let day_status = computeKaoQin(v);
+            workday_count += day_status.workday_count;
+            late_early += day_status.late_early;
+            plus_item += day_status.plus_item;
         });
         
         total_sheet['C' + r] = { v: workday_count };
-        total_sheet['D' + r] = { v: workday_plus };
+        total_sheet['D' + r] = { v: late_early };
         total_sheet['E' + r] = { v: plus_item };
     }
 
