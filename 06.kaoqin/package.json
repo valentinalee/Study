@@ -5,7 +5,8 @@
   "main": "main.js",
   "scripts": {
     "start": "node app.js",
-    "pack": "electron-packager . kaoqin --version=1.4.4 --out=out"
+    "pack": "electron-packager . kaoqin --version=1.4.4 --out=out",
+    "pack-all": "electron-packager . kaoqin --version=1.4.4 --out=out --arch=all"
   },
   "author": "",
   "license": "ISC",
