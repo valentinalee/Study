@@ -4,5 +4,6 @@
 请在该配置文件中加入（没有该文件的话，请先建一个）：
 
 {
-  "registry-mirrors": ["https://docker.mirrors.ustc.edu.cn"]
+  "registry-mirrors": ["https://docker.mirrors.ustc.edu.cn"] ,
+  "dns": ["208.67.220.220","208.67.220.222"]
 }
