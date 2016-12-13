@@ -286,7 +286,7 @@ function countKaoQin(slSheet,skSheet){
         
         total_sheet['C' + r] = { v: workday_count, t:'n' };
         total_sheet['D' + r] = { v: late, t:'n' };
-        total_sheet['E' + r] = { v: late, t:'n' };
+        total_sheet['E' + r] = { v: early, t:'n' };
         total_sheet['F' + r] = { v: plus_item, t:'n' };
     }
 
