@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = MockServletContext.class)
 @WebAppConfiguration
-public class SprintBootDemoApplicationTests {
+public class SpringBootDemoApplicationTests {
 	private MockMvc mvc;
 
 	@Before
