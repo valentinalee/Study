@@ -1,0 +1,7 @@
+spring.application.name: spring_cloud_demo
+spring.cloud.config:
+  profile: dev
+  label: master
+  uri: http://localhost:5000/
+
+server.port: 5001

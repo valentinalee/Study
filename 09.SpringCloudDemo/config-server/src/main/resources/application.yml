@@ -1,0 +1,10 @@
+spring.application.name: config-server
+server.port: 5000
+# git管理配置
+spring.cloud.config.server.git:
+  #本地git库
+  uri: file:///d:/data/config-repo
+  #uri: ssh://git@github.com:tiny-lk/Study.git
+  #searchPaths: 09.SpringCloudDemo/config-repo
+  #username: user
+  #password: password
