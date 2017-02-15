@@ -1,7 +1,12 @@
 spring.application.name: spring_cloud_demo
 spring.cloud.config:
   profile: dev
-  label: master
-  uri: http://localhost:5000/
+  #label: master
+  #uri: http://localhost:5000/
+  discovery:
+    enabled: true
+    serviceId: config-server
 
 server.port: 5001
+
+eureka.client.serviceUrl.defaultZone: http://localhost:4000/eureka/

@@ -7,3 +7,6 @@ spring.cloud.config.server.git:
   #远端git仓库
   #uri: git@github.com:tiny-lk/Study.git
   #searchPaths: 09.SpringCloudDemo/config-repo
+
+# 配置服务注册中心
+eureka.client.serviceUrl.defaultZone: http://localhost:4000/eureka/
