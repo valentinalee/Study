@@ -1,0 +1,5 @@
+spring.application.name: compute-service
+server.port: 40010
+eureka:
+  client:
+    serviceUrl.defaultZone: http://peer1:4001/eureka/,http://peer2:4002/eureka/

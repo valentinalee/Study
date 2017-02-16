@@ -1,0 +1,10 @@
+spring.application.name: eureka-server
+server.port: 4001
+
+eureka:
+  instance:
+    hostname: peer1
+
+  client:
+    register-with-eureka: true
+    serviceUrl.defaultZone: http://peer2:4002/eureka/
