@@ -1,0 +1,8 @@
+cd eureka-server\target
+java -jar eureka-server-0.0.1-SNAPSHOT.jar
+
+cd compute-service\target
+java -jar compute-service-0.0.1-SNAPSHOT.jar --spring.config.location=file:conf1.yml
+
+cd compute-service\target
+java -jar compute-service-0.0.1-SNAPSHOT.jar --spring.config.location=file:conf2.yml
