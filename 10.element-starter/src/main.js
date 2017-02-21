@@ -13,6 +13,8 @@ import Editor from './components/Editor.vue'
 
 import routes from './router-config'
 
+import store from './store'
+
 Vue.component(Layout.name, Layout)
 Vue.component(Search.name, Search)
 Vue.component(Editor.name, Editor)
@@ -42,5 +44,6 @@ new Vue({
   el: '#app',
   template: '<App/>',
   router,
+  store,
   components: { App }
 })
