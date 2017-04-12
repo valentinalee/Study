@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "pack": "electron-packager . kaoqin --asar --electron-version=1.4.15 --out=out",
+    "pack-32": "electron-packager . kaoqin --asar --electron-version=1.4.15 --out=out --arch=ia32",
     "pack-all": "electron-packager . kaoqin --asar --electron-version=1.4.15 --out=out --arch=all"
   },
   "author": "",
