@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const XLSX = require('xlsx');
 const kaoqin = require('./js/kaoqin');
+const fs =require('fs');
 
 let out_file_path = 'out/out.xlsx';
 
@@ -12,6 +13,10 @@ let slWorkbook = XLSX.readFile('data/test.xlsx');
 const slSheet = slWorkbook.Sheets['刷脸'];
 
 
-let out_workbook = kaoqin.countKaoQin(slSheet,skSheet);
 
-XLSX.writeFile(out_workbook, out_file_path);
+fs.readFile('config.json', (err, data) => {
+    if (err) throw err;
+
+    let out_workbook = kaoqin.countKaoQin(slSheet,skSheet,JSON.parse(data));
+    XLSX.writeFile(out_workbook, out_file_path);
+});

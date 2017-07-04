@@ -5,19 +5,20 @@
   "main": "main.js",
   "scripts": {
     "start": "node app.js",
-    "pack": "electron-packager . kaoqin --asar --electron-version=1.7.4 --out=out",
-    "pack-32": "electron-packager . kaoqin --asar --electron-version=1.7.4 --out=out --arch=ia32",
-    "pack-all": "electron-packager . kaoqin --asar --electron-version=1.7.4 --out=out --arch=all"
+    "electron": "electron .",
+    "pack": "electron-packager . kaoqin --asar.unpack=config.json --electron-version=1.6.11 --out=out --overwrite",
+    "pack-32": "electron-packager . kaoqin --asar.unpack=config.json --electron-version=1.6.11 --out=out --arch=ia32 --overwrite",
+    "pack-all": "electron-packager . kaoqin --asar.unpack=config.json --electron-version=1.6.11 --out=out --arch=all --overwrite"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "electron-store": "^1.2.0",
-    "lodash": "^4.16.4",
+    "lodash": "^4.17.4",
     "moment": "^2.18.1",
     "xlsx": "^0.8.8"
   },
   "devDependencies": {
+    "electron": "^1.6.11",
     "electron-packager": "^8.7.2"
   }
 }

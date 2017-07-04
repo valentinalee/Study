@@ -4,6 +4,8 @@ const dialog = require('electron').dialog;
 const _ = require('lodash');
 const XLSX = require('xlsx');
 const kaoqin = require('./js/kaoqin');
+const fs =require('fs');
+const path = require('path');
 
 //刷卡记录excel
 let skWorkbook = null;
@@ -11,6 +13,13 @@ let skWorkbook = null;
 let slWorkbook = null;
 
 let win
+
+let appPath = app.getAppPath();
+let configFilePath = null;
+if(appPath.endsWith('asar')){
+    appPath += ".unpacked";
+}
+configFilePath = path.join(appPath,"config.json");
 
 function createWindow() {
     // Create the browser window.
@@ -100,9 +109,21 @@ ipc.on('save-file', function (event,data) {
         const skSheet = skWorkbook.Sheets[data.skSheet];
         //刷脸记录sheet
         const slSheet = slWorkbook.Sheets[data.slSheet];
-        let out_workbook = kaoqin.countKaoQin(slSheet,skSheet);
-        XLSX.writeFile(out_workbook, data.outFile);
-        event.sender.send('saved-file-ok', 'ok');
+
+        fs.readFile(configFilePath, (err, cfg) => {
+            if (err){
+                sendError(event.sender,err);
+            } else{
+
+                try {
+                    let out_workbook = kaoqin.countKaoQin(slSheet,skSheet,JSON.parse(cfg));
+                    XLSX.writeFile(out_workbook, data.outFile);
+                    event.sender.send('saved-file-ok', 'ok');
+                } catch (err) {
+                    sendError(event.sender,err);
+                }
+            }
+        });
     } catch (err) {
         sendError(event.sender,err);
     }
