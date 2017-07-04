@@ -5,18 +5,18 @@
   "main": "main.js",
   "scripts": {
     "start": "node app.js",
-    "pack": "electron-packager . kaoqin --asar --electron-version=1.4.15 --out=out",
-    "pack-32": "electron-packager . kaoqin --asar --electron-version=1.4.15 --out=out --arch=ia32",
-    "pack-all": "electron-packager . kaoqin --asar --electron-version=1.4.15 --out=out --arch=all"
+    "pack": "electron-packager . kaoqin --asar --electron-version=1.6.11 --out=out",
+    "pack-32": "electron-packager . kaoqin --asar --electron-version=1.6.11 --out=out --arch=ia32",
+    "pack-all": "electron-packager . kaoqin --asar --electron-version=1.6.11 --out=out --arch=all"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "lodash": "^4.16.4",
-    "moment": "^2.15.2",
-    "xlsx": "^0.8.0"
+    "moment": "^2.18.1",
+    "xlsx": "^0.8.8"
   },
   "devDependencies": {
-    "electron-packager": "^8.5.2"
+    "electron-packager": "^8.7.2"
   }
 }
