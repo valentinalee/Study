@@ -45,3 +45,5 @@ Thumbs.db
 
 #jsDoc
 out
+
+package-lock.json
