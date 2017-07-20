@@ -31,6 +31,6 @@ func Exec() {
 	Load("header.json", &tplStruct)
 
 	fmt.Printf("%#v\n", tplStruct)
-	b, _ := jsoniter.Marshal(tplStruct)
+	b, _ := jsoniter.MarshalIndent(tplStruct, "", "  ")
 	println(string(b))
 }

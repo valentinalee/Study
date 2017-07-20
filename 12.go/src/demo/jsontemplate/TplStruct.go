@@ -17,5 +17,5 @@ type TplStruct struct {
 	/**
 	 * 下级field StructDefinition
 	 */
-	Definitions []TplStructDefinition `json:"definitions,omitempty"`
+	Definitions *[]TplStructDefinition `json:"definitions,omitempty"`
 }

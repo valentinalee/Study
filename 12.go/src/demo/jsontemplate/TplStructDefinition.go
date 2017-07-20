@@ -21,11 +21,11 @@ type TplStructDefinition struct {
 	/**
 	 * if type=struct,定义结构模版(见Struct)
 	 */
-	StructType TplStruct `json:"structType,omitempty"`
+	StructType *TplStruct `json:"structType,omitempty"`
 	/**
 	 * 数据值
 	 */
-	Value      interface{} `json:"value,omitempty"`
-	Resolution interface{} `json:"resolution,omitempty"`
-	Offset     int         `json:"offset,omitempty"`
+	Value      *interface{} `json:"value,omitempty"`
+	Resolution *interface{} `json:"resolution,omitempty"`
+	Offset     int          `json:"offset,omitempty"`
 }
