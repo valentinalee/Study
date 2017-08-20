@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Properties>
+        <Property name="PATTERN">%d %p [%t] %C{1} (%F:%L) - %m%n</Property>
+    </Properties>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT" follow="true">
+            <PatternLayout pattern="${PATTERN}" />
+        </Console>
+        <File name="File" fileName="/opt/logs/log4j2-logstach.log">
+            <PatternLayout pattern="${PATTERN}" />
+        </File>
+        <Socket name="Logstash" host="172.23.111.12" port="50178" protocol="TCP">
+            <PatternLayout pattern="${PATTERN}" />
+        </Socket>
+        <!-- logstash中添加filter
+        grok {
+        match => {
+        "message" => "(?<datetime>\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2},\d{3})\s(?<level>\w*)\s\[(?<thread>\S*)\]\s(?<class>\S*)\s\((?<file>[^:]*)[:]{1}(?<line>\d*)\)\s[-]\s(?<msg>.*)"
+        }
+        } -->
+    </Appenders>
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="File"/>
+            <AppenderRef ref="Logstash"/>
+        </Root>
+        <Logger name="Error" level="error" additivity="false">
+            <AppenderRef ref="Logstash"/>
+        </Logger>
+    </Loggers>
+</Configuration>

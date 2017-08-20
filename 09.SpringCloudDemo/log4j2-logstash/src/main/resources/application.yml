@@ -1,0 +1,11 @@
+spring.application.name: compute-service
+server.port: 40010
+eureka:
+  client:
+    serviceUrl.defaultZone: http://localhost:4000/eureka/
+
+  instance:
+    lease-renewal-interval-in-seconds: 5
+    lease-expiration-duration-in-seconds: 5
+
+logging.config: classpath:log4j2.xml
