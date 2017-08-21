@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+	<!-- 变量配置 -->
+	<Properties>
+		<Property name="log_path">/opt/logs/es/</Property>
+		<Property name="PATTERN">%d %p [%t] %C{1} (%F:%L) - %m%n</Property>
+	</Properties>
+
+	<!-- appender配置 -->
+	<Appenders>
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout pattern="${PATTERN}" />
+		</Console>
+		<RollingFile name="DailyRollingFile" fileName="${log_path}/eureka-feign.log"
+					 filePattern="${log_path}/eureka-feign%d{yyyy-MM-dd}.log">
+			<PatternLayout pattern="${PATTERN}" />
+			<TimeBasedTriggeringPolicy  interval="1"/>
+			　　　　　　　<SizeBasedTriggeringPolicy size="10 MB" />
+
+		</RollingFile>
+		<Socket name="Logstash" host="172.23.111.13" port="60364" protocol="TCP">
+			<PatternLayout pattern="${PATTERN}" />
+		</Socket>
+	</Appenders>
+	<Loggers>
+　　　　<Logger name="mylog" level="trace" additivity="false">
+　　　　　　<AppenderRef ref="DailyRollingFile" />
+　　　　</Logger>
+
+		<Root level="info">
+			<AppenderRef ref="Console" />
+			<AppenderRef ref="DailyRollingFile"/>
+            <AppenderRef ref="Logstash"/>
+		</Root>
+	</Loggers>
+</Configuration>

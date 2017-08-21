@@ -1,0 +1,15 @@
+spring.application.name: feign-consumer
+server.port: 40020
+
+eureka.client:
+  serviceUrl.defaultZone: http://localhost:4000/eureka/
+
+spring:
+  sleuth:
+    sampler:
+      percentage: 1
+  zipkin:
+    base-url: http://localhost:9411
+    enabled: true
+
+logging.config: classpath:log4j2.xml
