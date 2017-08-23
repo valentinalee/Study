@@ -8,10 +8,14 @@
             <PatternLayout pattern="${PATTERN}" />
         </Console>
         <File name="File" fileName="/opt/logs/log4j2-logstach.log">
-            <PatternLayout pattern="${PATTERN}" />
+            <!--<PatternLayout pattern="${PATTERN}" />-->
+            <JSONLayout compact="true" eventEol="true"></JSONLayout>
         </File>
-        <Socket name="Logstash" host="172.23.111.12" port="50178" protocol="TCP">
-            <PatternLayout pattern="${PATTERN}" />
+        <Socket name="Logstash" host="172.23.111.13" port="25200" protocol="TCP">
+            <!--<PatternLayout pattern="${PATTERN}" />-->
+            <JSONLayout compact="true" eventEol="true">
+                <!--<KeyValuePair key="service" value="log4j2"/>-->
+            </JSONLayout>
         </Socket>
         <!-- logstash中添加filter
         grok {
