@@ -10,7 +10,15 @@ eureka:
 
 spring:
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/?useUnicode=true&characterEncoding=utf8
+    url: jdbc:mysql://127.0.0.1:3306/cusc_db?useUnicode=true&characterEncoding=utf8
+    username: test
+    password: test
+    driver-class-name: com.mysql.jdbc.Driver
+
+quartz:
+  config: classpath:quartz.properties
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/quartz?useUnicode=true&characterEncoding=utf8
     username: test
     password: test
     driver-class-name: com.mysql.jdbc.Driver

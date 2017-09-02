@@ -60,10 +60,10 @@
             <artifactId>quartz</artifactId>
             <version>2.2.1</version>
             <exclusions>
-                <!--<exclusion>-->
-                    <!--<groupId>c3p0</groupId>-->
-                    <!--<artifactId>c3p0</artifactId>-->
-                <!--</exclusion>-->
+                <exclusion>
+                    <groupId>c3p0</groupId>
+                    <artifactId>c3p0</artifactId>
+                </exclusion>
                 <exclusion>
             <artifactId>slf4j-api</artifactId>
             <groupId>org.slf4j</groupId>
