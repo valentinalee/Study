@@ -1,7 +1,20 @@
 ﻿
 node-weixin   
 -------------------------------------
-微信接口测试(node v7.6.0以上)
+微信接口测试
+
+使用说明   
+-------------------------------------
+1. 安装nodejs，nodejs版本必须v7.6.0以上
+2. 在代码根目录下运行npm install获取依赖库
+3. 修改app.js中的微信appId等相关配置.现使用模板为：
+    {{first.DATA}}
+    消息：{{msg.DATA}}
+    时间：{{time.DATA}}
+    {{remark.DATA}}
+4. 执行npm run start 或 node app.js 命令启动服务
+5. 可用使用下面接口发送消息 
+    curl -X POST --data "msg=server error" 127.0.0.1:3000/weixin/alert
 
 
 nodejs调试  
