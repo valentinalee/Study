@@ -1,0 +1,13 @@
+﻿
+node-weixin   
+-------------------------------------
+微信接口测试(node v7.6.0以上)
+
+
+nodejs调试  
+-------------------------------------
+nodejs 使用 nodejs 自带的 V8 Inspector 调试  
+1. 运行V8 inspector  
+    node --inspect --debug-brk app.js  
+2. 在输出中找到下面地址，并在chrome中打开  
+    chrome-devtools://...  
