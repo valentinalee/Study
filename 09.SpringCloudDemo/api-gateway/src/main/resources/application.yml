@@ -12,5 +12,26 @@ zuul.routes:
   s1-url:
     path: /s1-url/**
     url: http://localhost:40011/
+  test:
+    path: /o/**
+    url: http://localhost:${server.port}/order/
 
 eureka.client.serviceUrl.defaultZone: http://localhost:4000/eureka/
+
+spring:
+    redis:
+        host: 172.23.105.210
+        password: 123456
+        database: 13
+        pool:
+            max-active: 8
+            max-idle: 8
+            max-wait: -1
+            min-idle: 0
+        port: 6379
+        timeout: 0
+
+security:
+  oauth2:
+    resource:
+      filter-order: 3
