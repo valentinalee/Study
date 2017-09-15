@@ -16,6 +16,13 @@ node-weixin
 5. 可用使用下面接口发送消息 
     curl -X POST --data "msg=server error" 127.0.0.1:3000/weixin/alert
 
+微信测试帐号说明   
+-------------------------------------
+1. 打开地址https://mp.weixin.qq.com/debug/cgi-bin/sandbox?t=sandbox/login申请账号
+2. 新增测试模板，添加使用说明3中的模板
+3. 用微信关注测试公众号
+4. 将appId appsecret 模板id 需要发送消息的用户id 写到app.js中
+
 
 nodejs调试  
 -------------------------------------
