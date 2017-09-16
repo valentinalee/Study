@@ -1,0 +1,1 @@
+sudo ros install -c https://raw.githubusercontent.com/tiny-lk/Study/master/99.other/rancheros/cloud-config.yml -d /dev/sda
