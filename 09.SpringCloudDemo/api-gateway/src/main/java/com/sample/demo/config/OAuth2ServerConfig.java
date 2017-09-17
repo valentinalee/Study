@@ -71,7 +71,12 @@ public class OAuth2ServerConfig {
         public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
             endpoints
                     .tokenStore(new RedisTokenStore(redisConnectionFactory))
-                    .authenticationManager(authenticationManager);
+                    .authenticationManager(authenticationManager)
+                    .pathMapping("/oauth/token", "/auth/token")
+                    .pathMapping("/oauth/authorize", "/auth/authorize")
+                    .pathMapping("/oauth/check_token", "/auth/check_token")
+                    .pathMapping("/oauth/confirm_access", "/auth/confirm_access")
+                    .pathMapping("/oauth/error", "/auth/error");
         }
         @Override
         public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
