@@ -1,0 +1,12 @@
+#cloud-config
+hostname: rancheros
+ssh_authorized_keys:
+  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDh6hGtwhumYe3+uP89zObj6T7flj60y/jSbSJlR7zD/ujdv8UYmrEnGcs8hKEVdKQHqSlK3MgDiAooUdSTY3hYSUI9i8TeVptWcEIOXMOtEs7r9p4aX+Cv2iKkG/28MS7XXZ8HsKI7CUheDXak/HBAzrbcYcFmgDJLd23Dyw4/RNqn3uG4alvqOMBHubCJFr/XlmHUuCcK0GrVd5mrE2o95h0UV1jxXgXkEFLn1CUQ8wLjCTJiigSykmNHBLmUao7RW8KgnttaYpaFEs1LDAOsHXADRyNWUasoQKGwhc1EAldKhH707G6UhuPpo5SyWd6uRi9pZHGCo0PqF0Xa5Amp likun2@cjwsjy.com.cn
+rancher:
+  console: debian
+  bootstrap_docker:
+    registry_mirror: "https://registry.docker-cn.com"
+  docker:
+    registry_mirror: "https://registry.docker-cn.com"
+  system_docker:
+    registry_mirror: "https://registry.docker-cn.com"
