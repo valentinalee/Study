@@ -1,0 +1,3 @@
+
+设置selinux权限
+chcon -Rt svirt_sandbox_file_t /opt/registry/data
