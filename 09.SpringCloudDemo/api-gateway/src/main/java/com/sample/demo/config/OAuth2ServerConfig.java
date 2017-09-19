@@ -1,5 +1,6 @@
 package com.sample.demo.config;
 
+import com.sample.demo.service.CustomClientDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -39,7 +40,7 @@ public class OAuth2ServerConfig {
                     .anonymous()
                     .and()
                     .authorizeRequests()
-                    .antMatchers("/o/**").access("hasRole('ADMIN')")
+                    .antMatchers("/o/**").hasRole("ADMIN")
                     .antMatchers("/**").authenticated()
                     ;
 //                    .antMatchers("/product/**").access("#oauth2.hasScope('select') and hasRole('ROLE_USER')")
@@ -47,6 +48,7 @@ public class OAuth2ServerConfig {
             // @formatter:on
         }
     }
+
     @Configuration
     @EnableAuthorizationServer
     protected static class AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter {
@@ -56,30 +58,33 @@ public class OAuth2ServerConfig {
         RedisConnectionFactory redisConnectionFactory;
         @Override
         public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-            //配置两个客户端,一个用于password认证一个用于client认证
-            clients.inMemory().withClient("client_1")
-                    .resourceIds(DEMO_RESOURCE_ID)
-                    .authorizedGrantTypes("client_credentials", "refresh_token")
-                    .scopes("select")
-                    .authorities("client")
-                    .secret("123456")
-                    .and().withClient("client_2")
-                    .resourceIds(DEMO_RESOURCE_ID)
-                    .authorizedGrantTypes("password", "refresh_token")
-                    .scopes("select")
-                    .authorities("client")
-                    .secret("123456");
+            clients.withClientDetails(new CustomClientDetailsService());
+//            //配置两个客户端,一个用于password认证一个用于client认证
+//            clients.inMemory().withClient("client_1")
+//                    .resourceIds(DEMO_RESOURCE_ID)
+//                    .authorizedGrantTypes("client_credentials", "refresh_token")
+//                    .scopes("select")
+//                    .authorities("client","ADMIN")
+//                    .secret("123456")
+//                    .and().withClient("client_2")
+//                    .resourceIds(DEMO_RESOURCE_ID)
+//                    .authorizedGrantTypes("password", "refresh_token")
+//                    .scopes("select")
+//                    .authorities("client")
+//                    .secret("123456");
         }
+
         @Override
         public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
             endpoints
                     .tokenStore(new RedisTokenStore(redisConnectionFactory))
                     .authenticationManager(authenticationManager)
-                    .pathMapping("/oauth/token", "/auth/token")
-                    .pathMapping("/oauth/authorize", "/auth/authorize")
-                    .pathMapping("/oauth/check_token", "/auth/check_token")
-                    .pathMapping("/oauth/confirm_access", "/auth/confirm_access")
-                    .pathMapping("/oauth/error", "/auth/error");
+//                    .pathMapping("/oauth/token", "/auth/token")
+//                    .pathMapping("/oauth/authorize", "/auth/authorize")
+//                    .pathMapping("/oauth/check_token", "/auth/check_token")
+//                    .pathMapping("/oauth/confirm_access", "/auth/confirm_access")
+//                    .pathMapping("/oauth/error", "/auth/error")
+            ;
         }
         @Override
         public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
