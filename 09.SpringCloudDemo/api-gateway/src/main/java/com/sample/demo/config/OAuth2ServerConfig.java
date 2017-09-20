@@ -2,6 +2,7 @@ package com.sample.demo.config;
 
 import com.sample.demo.service.CustomClientDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,6 +16,7 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.R
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStore;
 
 @Configuration
@@ -40,6 +42,7 @@ public class OAuth2ServerConfig {
                     .anonymous()
                     .and()
                     .authorizeRequests()
+                    .antMatchers("/auth/**").anonymous()
                     .antMatchers("/o/**").hasRole("ADMIN")
                     .antMatchers("/**").authenticated()
                     ;
@@ -58,7 +61,7 @@ public class OAuth2ServerConfig {
         RedisConnectionFactory redisConnectionFactory;
         @Override
         public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-            clients.withClientDetails(new CustomClientDetailsService());
+            clients.withClientDetails(clientDetailsService());
 //            //配置两个客户端,一个用于password认证一个用于client认证
 //            clients.inMemory().withClient("client_1")
 //                    .resourceIds(DEMO_RESOURCE_ID)
@@ -90,6 +93,11 @@ public class OAuth2ServerConfig {
         public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
             //允许表单认证
             oauthServer.allowFormAuthenticationForClients();
+        }
+
+        @Bean
+        public ClientDetailsService clientDetailsService(){
+            return new CustomClientDetailsService();
         }
     }
 }
