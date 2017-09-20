@@ -1,0 +1,5 @@
+spring.application.name: srv1
+server.port: 40011
+eureka:
+  client:
+    serviceUrl.defaultZone: http://localhost:4000/eureka/
