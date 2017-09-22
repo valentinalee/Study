@@ -26,8 +26,12 @@ public class ComputeController {
 
 
         String token = request.getParameter("access_token");
-        if(!StringUtils.isEmpty(token)) {
-            Jwt jwt = JwtHelper.decodeAndVerify(token, new MacSigner("123"));
+        try {
+            if (!StringUtils.isEmpty(token)) {
+                Jwt jwt = JwtHelper.decodeAndVerify(token, new MacSigner("123"));
+            }
+        }catch (Exception ex){
+            ex.printStackTrace();
         }
 
         ServiceInstance instance = client.getLocalServiceInstance();

@@ -60,4 +60,14 @@ public class HttpRequestWrapper extends HttpServletRequestWrapper
     {
         return getParameterMap().get(name);
     }
+
+    public String[] removeParameter(String key){
+        if(allParameters == null){
+            getParameterMap();
+        }
+        if(allParameters != null){
+            return allParameters.remove(key);
+        }
+        return null;
+    }
 }

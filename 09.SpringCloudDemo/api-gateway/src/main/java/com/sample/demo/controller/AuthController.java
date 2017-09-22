@@ -58,7 +58,9 @@ public class AuthController {
         parameters.put("grant_type", new String[]{"client_credentials"});
         parameters.put("client_id",new String[]{clientId});
         parameters.put("client_secret",new String[]{clientSecret});
-        HttpServletRequest requestWrapper = new HttpRequestWrapper(request, parameters);
+        HttpRequestWrapper requestWrapper = new HttpRequestWrapper(request, parameters);
+        requestWrapper.removeParameter("appId");
+        requestWrapper.removeParameter("appSecret");
         request.getRequestDispatcher("/oauth/token").forward(requestWrapper,response);
     }
 

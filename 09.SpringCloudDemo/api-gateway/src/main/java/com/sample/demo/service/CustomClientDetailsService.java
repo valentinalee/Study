@@ -19,24 +19,26 @@ public class CustomClientDetailsService implements ClientDetailsService {
         if(clientId.equals("client_1")) {
             BaseClientDetails details = new BaseClientDetails();
             details.setClientId(clientId);
-            details.setResourceIds(Arrays.asList(DEMO_RESOURCE_ID));
+            details.setResourceIds(Arrays.asList(DEMO_RESOURCE_ID,"a","b"));
             details.setAuthorizedGrantTypes(Arrays.asList("client_credentials", "refresh_token"));
             details.setScope(Arrays.asList("select","read", "trust"));
             Set<GrantedAuthority> authorities = new HashSet<GrantedAuthority>();
             authorities.add(new SimpleGrantedAuthority("ROLE_CLIENT"));
             details.setAuthorities(authorities);
             details.setClientSecret("123456");
+            details.addAdditionalInformation("test","123");
             return details;
         } else if(clientId.equals("client_2")) {
             BaseClientDetails details = new BaseClientDetails();
             details.setClientId(clientId);
-            details.setResourceIds(Arrays.asList(DEMO_RESOURCE_ID));
+            details.setResourceIds(Arrays.asList(DEMO_RESOURCE_ID,"a"));
             details.setAuthorizedGrantTypes(Arrays.asList("password", "refresh_token"));
             details.setScope(Arrays.asList("select","read", "trust"));
             Set<GrantedAuthority> authorities = new HashSet<GrantedAuthority>();
             authorities.add(new SimpleGrantedAuthority("ROLE_CLIENT"));
             details.setAuthorities(authorities);
             details.setClientSecret("123456");
+            details.addAdditionalInformation("test","4566");
             return details;
         }
         throw new ClientRegistrationException(clientId);
