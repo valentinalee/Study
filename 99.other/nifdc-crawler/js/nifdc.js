@@ -44,7 +44,7 @@ async function crawlItem(itemUrl) {
             let rowspans = [];
             let title = $('.articletitle1').text();
             item_sheet['title'] = getSheetName(title);
-            $('.articlecontent1 > table > tbody > tr').each(function (idxRow, element) {
+            $('.articlecontent1 tr').each(function (idxRow, element) {
                 let item = {};
                 let colOffset = 0;
                 $(element).find('td').each(function (idxCol, el) {
