@@ -1,0 +1,20 @@
+{
+  "name": "nifdc-crawler",
+  "version": "0.1.0",
+  "description": "nifdc-crawler",
+  "private": true,
+  "scripts": {
+    "start": "node app.js",
+    "debug": "node --inspect-brk app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
+    "lodash": "^4.17.4",
+    "superagent": "^3.6.1",
+    "superagent-charset": "^1.2.0",
+    "xlsx": "^0.11.5"
+  },
+  "devDependencies": {}
+}

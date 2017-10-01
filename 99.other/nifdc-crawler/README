@@ -1,0 +1,19 @@
+﻿
+nifdc-crawler   
+-------------------------------------
+网络爬虫，抓取生物制品批签发数据(http://www.nifdc.org.cn/CL0108/)
+
+使用说明   
+-------------------------------------
+1. 安装nodejs，nodejs版本必须v7.6.0以上
+2. 在代码根目录下运行npm install获取依赖库
+3. 执行npm run start 或 node app.js 命令启动服务
+
+
+nodejs调试  
+-------------------------------------
+nodejs 使用 nodejs 自带的 V8 Inspector 调试  
+1. 运行V8 inspector  
+    node --inspect-brk app.js  
+2. 在输出中找到下面地址，并在chrome中打开  
+    chrome-devtools://...  
