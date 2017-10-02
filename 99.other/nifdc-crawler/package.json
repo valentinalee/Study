@@ -3,9 +3,14 @@
   "version": "0.1.0",
   "description": "nifdc-crawler",
   "private": true,
+  "main": "main.js",
   "scripts": {
     "start": "node app.js",
-    "debug": "node --inspect-brk app.js"
+    "debug": "node --inspect-brk app.js",
+    "electron": "electron .",
+    "pack": "electron-packager . nifdc-crawler --asar.unpack=config.json --electron-version=1.7.8 --out=out --overwrite",
+    "pack-32": "electron-packager . nifdc-crawler --asar.unpack=config.json --electron-version=1.7.8 --out=out --arch=ia32 --overwrite",
+    "pack-all": "electron-packager . nifdc-crawler --asar.unpack=config.json --electron-version=1.7.8 --out=out --arch=all --overwrite"
   },
   "author": "",
   "license": "ISC",
@@ -16,5 +21,8 @@
     "superagent-charset": "^1.2.0",
     "xlsx": "^0.11.5"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "electron": "^1.7.8",
+    "electron-packager": "^9.1.0"
+  }
 }
