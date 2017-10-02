@@ -1,9 +1,20 @@
 ﻿
 nifdc-crawler   
 -------------------------------------
-网络爬虫，抓取生物制品批签发数据
-2017:http://www.nifdc.org.cn/CL0108
+网络爬虫，抓取生物制品批签发数据,2013年以前的格式不同，暂不支持
+2017:http://www.nifdc.org.cn/CL0873/
 2016:http://www.nifdc.org.cn/CL0833/
+    2016年12月1日至12月15日:http://www.nifdc.org.cn/CL0873/9048.html
+    2016年12月16日至12月31日:http://www.nifdc.org.cn/CL0873/9084.html
+2015:http://www.nifdc.org.cn/CL0792/
+2014:http://www.nifdc.org.cn/CL0737/
+2013:http://www.nifdc.org.cn/CL0428/
+2012:http://www.nifdc.org.cn/CL0621/
+2011:http://www.nifdc.org.cn/CL0568/
+2010:http://www.nifdc.org.cn/CL0498/
+2009:http://www.nifdc.org.cn/CL0427/
+2008:http://www.nifdc.org.cn/CL0233/
+2007:http://www.nifdc.org.cn/CL0168/
 
 使用说明   
 -------------------------------------

@@ -3,6 +3,8 @@ const superagent = require('superagent');
 require('superagent-charset')(superagent);
 const cheerio = require('cheerio');
 
+const SQ_COL_NAME = '序号';
+
 //excel列字母编号转为数字（以1开始）
 function colString2int(str) {
     let col = 0;
@@ -33,6 +35,24 @@ function getSheetName(title) {
     return _.trim(title.substr(lIdx + 1, rIdx - lIdx - 1));
 }
 
+function isSpecialCharacter(code){
+    if(code <= 0x206F && code >= 0x2000){
+        return true;
+    }
+    return false;
+}
+
+//判断行是否存在数据
+function hasData(r) {
+    for (var i = 0; i < r.length; i++) {
+        let v = r[i];
+        if(v && !isSpecialCharacter(v.codePointAt(0)) ){
+            return true;
+        }
+    }
+    return false;
+}
+
 async function crawlItem(itemUrl) {
 
     let itemTable = {};
@@ -41,45 +61,42 @@ async function crawlItem(itemUrl) {
         .then(function (sres) {
             console.log(`end get ${itemUrl}`);
             let $ = cheerio.load(sres.text);
-            let rNum = 0;
-            let cNum = 0;
             let rowspans = [];
             let title = $('.articletitle1').text();
             itemTable['title'] = getSheetName(title);
             let data = [];
-            $('.articlecontent1 tr').each(function (idxRow, element) {
-                let item = {};
-                let colOffset = 0;
-                let row = [];
-                $(element).find('td').each(function (idxCol, el) {
-                    let idx = idxCol + colOffset;
-                    if (rowspans[idx] > 1) {
-                        row.push(data[idxRow - 1][idx]);
-                        colOffset++;
-                        rowspans[idx] = rowspans[idx] - 1;
-                        idx++;
-                    }
-                    let $el = $(el);
-                    rowspan = parseInt($el.attr('rowspan'));
-                    if (isNaN(rowspan)) {
-                        rowspans[idx] = 1;
-                    } else {
-                        rowspans[idx] = parseInt(rowspan);
-                    }
-                    let txt = '';
-                    $el.find('p > span').each(function (i, e) {
-                        txt += $(e).text();
+            let tbs = $('.articlecontent1 table');
+            if(tbs.length > 0){
+                let tb = $(tbs[tbs.length -1]);
+                $(tb).find('tr').each(function (idxRow, element) {
+                    let item = {};
+                    let colOffset = 0;
+                    let row = [];
+                    $(element).find('td').each(function (idxCol, el) {
+                        let idx = idxCol + colOffset;
+                        if (rowspans[idx] > 1) {
+                            row.push(data[idxRow - 1][idx]);
+                            colOffset++;
+                            rowspans[idx] = rowspans[idx] - 1;
+                            idx++;
+                        }
+                        let $el = $(el);
+                        rowspan = parseInt($el.attr('rowspan'));
+                        if (isNaN(rowspan)) {
+                            rowspans[idx] = 1;
+                        } else {
+                            rowspans[idx] = parseInt(rowspan);
+                        }
+                        let txt = $el.text();
+                        txt = _.trim(txt);
+                        row.push(txt);
                     });
-                    txt = _.trim(txt);
-                    row.push(txt);
-
-                    if (idxRow == 0) {
-                        cNum = Math.max(cNum, idx);
+                    //跳过内容为空的行
+                    if (hasData(row)) {
+                        data.push(row);
                     }
                 });
-                data.push(row);
-                rNum = idxRow;
-            });
+            }
 
             itemTable.data = data;
         });
@@ -97,13 +114,27 @@ async function crawlItems(items) {
         allItemData = _.concat(allItemData, itemTable.data);
     }
     if (items && items.length > 0 && allItemData.length > 0) {
+        //处理标题，去除标题中间空格
+        let titleRow = allItemData[0];
+        _.forEach(titleRow, function (v, k) {
+            titleRow[k] = _.replace(v, ' ', '');
+        });
+        //增加序号列
+        let sq = findColData(titleRow, titleRow, SQ_COL_NAME);
+        if(!(sq == SQ_COL_NAME)){ //不存在序号列
+            titleRow.push(SQ_COL_NAME);
+            for (let idx = 1; idx < allItemData.length; idx++) { //跳过标题行
+                let row = allItemData[idx];
+                row.push(idx.toString());
+            }
+        }
         return {
             name: items[0]['name'],
             data: allItemData,
-            title: allItemData[0],
+            title: titleRow,
         };
     }
-    return {};
+    return null;
 }
 
 async function crawlYear(yearUrl, extendItems) {
@@ -114,6 +145,11 @@ async function crawlYear(yearUrl, extendItems) {
             console.log(`end get ${yearUrl}`);
             let $ = cheerio.load(sres.text);
             let items = [];
+            if (extendItems && extendItems.length > 0) {
+                _.forEach(extendItems, function (v, k) {
+                    items.push({ title: v.title, name: getSheetName(v.title), itemUrl: v.url });
+                })
+            }
             $('.ListColumnClass1 > a').each(function (idx, el) {
                 let $el = $(el);
                 let title = $el.text();
@@ -121,19 +157,13 @@ async function crawlYear(yearUrl, extendItems) {
                 let itemUrl = yearUrl + $el.attr('href');
                 items.push({ title: title, name: name, itemUrl: itemUrl });
             });
-            if (extendItems && extendItems.length > 0) {
-                _.forEach(extendItems, function (v, k) {
-                    items.push({ title: v.title, name: getSheetName(v.title), itemUrl: v.url });
-                })
-            }
-            items = _.sortBy(items, ['title'], ['desc']);
             let gItems = _.groupBy(items, 'name');
             let promises = _.map(gItems, function (v) {
                 return crawlItems(v);
             });
             results = await Promise.all(promises);
         });
-    return results;
+    return _.compact(results);
 }
 
 function buildSheet(itemData) {
@@ -157,9 +187,8 @@ function buildSheet(itemData) {
 }
 
 //查找对应列数据
-function findColData(item, r, title) {
-    let sheetTitle = item.title;
-    let idx = _.findIndex(sheetTitle, function (o) { return o == title; });
+function findColData(titleRow, r, title) {
+    let idx = _.findIndex(titleRow, function (o) { return o == title; });
     if (idx >= 0) {
         return r[idx];
     }
@@ -167,8 +196,8 @@ function findColData(item, r, title) {
 }
 
 //判断是否为数据行,通过序号是否为数字进行判断
-function isDataRow(item, r) {
-    let sq = findColData(item, r, '序号');
+function isDataRow(titleRow, r) {
+    let sq = findColData(titleRow, r, SQ_COL_NAME);
     if (isNaN(parseInt(sq))) {
         return false;
     }
@@ -190,14 +219,14 @@ function buildAllSheet(itemDatas) {
     _.forEach(itemDatas, function (item) {
         //循环行
         _.forEach(item.data, function (r, idxRow) {
-            if (isDataRow(item, r)) { //仅合并数据行
+            if (isDataRow(item.title, r)) { //仅合并数据行
                 //循环列
                 _.forEach(all_title, function (title, idxCol) {
                     const c = int2colString(idxCol + 1);
                     if (_.isEqual(title, sheetName)) { //表格名
                         all_sheet[c + idxAllRow] = { v: item.name };
                     } else {
-                        let d = findColData(item, r, title);
+                        let d = findColData(item.title, r, title);
                         all_sheet[c + idxAllRow] = { v: d ? d : '' };
                     }
                 });
