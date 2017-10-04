@@ -7,3 +7,7 @@
   "registry-mirrors": ["https://docker.mirrors.ustc.edu.cn"] ,
   "dns": ["208.67.220.220","208.67.220.222"]
 }
+
+{
+  "registry-mirrors": ["https://registry.docker-cn.com"]
+}
