@@ -4,6 +4,10 @@ require('superagent-charset')(superagent);
 const cheerio = require('cheerio');
 
 const SQ_COL_NAME = '序号';
+const AMOUNT_OLD_COL_NAME = '批量/进口量';
+const AMOUNT_VALUE_COL_NAME = '数量';
+const AMOUNT_UNIT_COL_NAME = '单位';
+const SHEET_NAME = 'NAME';
 
 //excel列字母编号转为数字（以1开始）
 function colString2int(str) {
@@ -35,8 +39,8 @@ function getSheetName(title) {
     return _.trim(title.substr(lIdx + 1, rIdx - lIdx - 1));
 }
 
-function isSpecialCharacter(code){
-    if(code <= 0x206F && code >= 0x2000){
+function isSpecialCharacter(code) {
+    if (code <= 0x206F && code >= 0x2000) {
         return true;
     }
     return false;
@@ -46,7 +50,7 @@ function isSpecialCharacter(code){
 function hasData(r) {
     for (var i = 0; i < r.length; i++) {
         let v = r[i];
-        if(v && !isSpecialCharacter(v.codePointAt(0)) ){
+        if (v && !isSpecialCharacter(v.codePointAt(0))) {
             return true;
         }
     }
@@ -66,8 +70,8 @@ async function crawlItem(itemUrl) {
             itemTable['title'] = getSheetName(title);
             let data = [];
             let tbs = $('.articlecontent1 table');
-            if(tbs.length > 0){
-                let tb = $(tbs[tbs.length -1]);
+            if (tbs.length > 0) {
+                let tb = $(tbs[tbs.length - 1]);
                 $(tb).find('tr').each(function (idxRow, element) {
                     let item = {};
                     let colOffset = 0;
@@ -121,7 +125,7 @@ async function crawlItems(items) {
         });
         //增加序号列
         let sq = findColData(titleRow, titleRow, SQ_COL_NAME);
-        if(!(sq == SQ_COL_NAME)){ //不存在序号列
+        if (!(sq == SQ_COL_NAME)) { //不存在序号列
             titleRow.push(SQ_COL_NAME);
             for (let idx = 1; idx < allItemData.length; idx++) { //跳过标题行
                 let row = allItemData[idx];
@@ -205,11 +209,12 @@ function isDataRow(titleRow, r) {
 }
 
 function buildAllSheet(itemDatas) {
-    const sheetName = 'name';
     let all_sheet = { name: 'ALL' };
-    let all_title = _.concat(sheetName, _.union.apply(this, _.map(itemDatas, 'title')));
+    let all_title = _.concat(SHEET_NAME, _.union.apply(this, _.map(itemDatas, 'title')));
     let idxAllRow = 1;
     //合并后的标题行
+    all_title.push(AMOUNT_VALUE_COL_NAME);
+    all_title.push(AMOUNT_UNIT_COL_NAME);
     _.forEach(all_title, function (title, idxCol) {
         const c = int2colString(idxCol + 1);
         all_sheet[c + idxAllRow] = { v: title };
@@ -220,11 +225,22 @@ function buildAllSheet(itemDatas) {
         //循环行
         _.forEach(item.data, function (r, idxRow) {
             if (isDataRow(item.title, r)) { //仅合并数据行
+                let amount = findColData(item.title, r, AMOUNT_OLD_COL_NAME);
                 //循环列
                 _.forEach(all_title, function (title, idxCol) {
                     const c = int2colString(idxCol + 1);
-                    if (_.isEqual(title, sheetName)) { //表格名
+                    if (_.isEqual(title, SHEET_NAME)) { //表格名
                         all_sheet[c + idxAllRow] = { v: item.name };
+                    } else if (_.isEqual(title, AMOUNT_OLD_COL_NAME)) {
+                        all_sheet[c + idxAllRow] = { v: amount ? amount : '' };
+                    } else if (_.isEqual(title, AMOUNT_VALUE_COL_NAME)) {
+                        let aValue = amount.match(/\d+/);
+                        let av = aValue ? aValue[0] : 0;
+                        all_sheet[c + idxAllRow] = { t: 'n', v: av };
+                    } else if (_.isEqual(title, AMOUNT_UNIT_COL_NAME)) {
+                        let aUnit = amount.match(/\D+/);
+                        let au = aUnit ? aUnit[0] : '';
+                        all_sheet[c + idxAllRow] = { v: au };
                     } else {
                         let d = findColData(item.title, r, title);
                         all_sheet[c + idxAllRow] = { v: d ? d : '' };
