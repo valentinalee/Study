@@ -77,7 +77,7 @@ public class SSLOAuthClient {
 
         final SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(
                 sslContext,
-                new String[] { "TLSv1.2" },
+                null,//new String[] { "TLSv1.2" },
                 null,
                 SSLConnectionSocketFactory.getDefaultHostnameVerifier());
         final Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
@@ -144,6 +144,7 @@ public class SSLOAuthClient {
         resourceDetails.setAuthenticationScheme(AuthenticationScheme.form);
 
         DefaultOAuth2ClientContext clientContext = new DefaultOAuth2ClientContext();
+//        clientContext.setAccessToken();
 
         OAuth2RestTemplate template = new OAuth2RestTemplate(resourceDetails, clientContext);
         template.setAccessTokenProvider(new WeixinClientCredentialsAccessTokenProvider());
