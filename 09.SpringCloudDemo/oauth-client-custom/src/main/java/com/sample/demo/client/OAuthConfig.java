@@ -6,13 +6,16 @@ import org.springframework.util.MultiValueMap;
 public class OAuthConfig {
     private String tokenUrl;
     private String refreshUrl;
-    private boolean canRefresh = true;
+    private boolean useRefreshUrl = true;
     private String appId;
     private String appSecret;
     private String appIdName;
     private String appSecretName;
     private String tokenName;
-    private MultiValueMap<String, String> additionalParams = new LinkedMultiValueMap<>();
+    private String refreshTokenName;
+    private MultiValueMap<String, String> additionalTokenParams = new LinkedMultiValueMap<>();
+    private MultiValueMap<String, String> additionalRefreshParams = new LinkedMultiValueMap<>();
+    private AuthScheme authScheme;
 
     public String getTokenUrl() {
         return tokenUrl;
@@ -30,12 +33,12 @@ public class OAuthConfig {
         this.refreshUrl = refreshUrl;
     }
 
-    public boolean isCanRefresh() {
-        return canRefresh;
+    public boolean isUseRefreshUrl() {
+        return useRefreshUrl;
     }
 
-    public void setCanRefresh(boolean canRefresh) {
-        this.canRefresh = canRefresh;
+    public void setUseRefreshUrl(boolean useRefreshUrl) {
+        this.useRefreshUrl = useRefreshUrl;
     }
 
     public String getAppId() {
@@ -78,7 +81,27 @@ public class OAuthConfig {
         this.tokenName = tokenName;
     }
 
-    public MultiValueMap<String, String> getAdditionalParams() {
-        return additionalParams;
+    public MultiValueMap<String, String> getAdditionalTokenParams() {
+        return additionalTokenParams;
+    }
+
+    public MultiValueMap<String, String> getAdditionalRefreshParams() {
+        return additionalRefreshParams;
+    }
+
+    public AuthScheme getAuthScheme() {
+        return authScheme;
+    }
+
+    public void setAuthScheme(AuthScheme authScheme) {
+        this.authScheme = authScheme;
+    }
+
+    public String getRefreshTokenName() {
+        return refreshTokenName;
+    }
+
+    public void setRefreshTokenName(String refreshTokenName) {
+        this.refreshTokenName = refreshTokenName;
     }
 }

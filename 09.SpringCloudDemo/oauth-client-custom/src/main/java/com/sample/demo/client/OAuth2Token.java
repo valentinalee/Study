@@ -15,14 +15,14 @@ public class OAuth2Token  implements Serializable {
     public static String REFRESH_TOKEN = "refresh_token";
     public static String SCOPE = "scope";
 
-    private String value;
+    private String accessToken;
     private Date expiration;
     private String tokenType = BEARER_TYPE.toLowerCase();
     private String refreshToken;
-    private Set<String> scope;
+    private String scope;
 
-    public OAuth2Token(String value) {
-        this.value = value;
+    public OAuth2Token(String token) {
+        this.accessToken = token;
     }
 
     private OAuth2Token() {
@@ -30,19 +30,19 @@ public class OAuth2Token  implements Serializable {
     }
 
     public OAuth2Token(OAuth2Token accessToken) {
-        this(accessToken.getValue());
+        this(accessToken.getAccessToken());
         setRefreshToken(accessToken.getRefreshToken());
         setExpiration(accessToken.getExpiration());
         setScope(accessToken.getScope());
         setTokenType(accessToken.getTokenType());
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
     }
 
-    public String getValue() {
-        return value;
+    public String getAccessToken() {
+        return accessToken;
     }
 
     public int getExpiresIn() {
@@ -51,7 +51,7 @@ public class OAuth2Token  implements Serializable {
     }
 
     public void setExpiresIn(int delta) {
-        setExpiration(new Date(System.currentTimeMillis() + delta));
+        setExpiration(new Date(System.currentTimeMillis() + delta * 1000L));
     }
 
     public Date getExpiration() {
@@ -82,11 +82,11 @@ public class OAuth2Token  implements Serializable {
         this.refreshToken = refreshToken;
     }
 
-    public Set<String> getScope() {
+    public String getScope() {
         return scope;
     }
 
-    public void setScope(Set<String> scope) {
+    public void setScope(String scope) {
         this.scope = scope;
     }
 
@@ -102,7 +102,7 @@ public class OAuth2Token  implements Serializable {
 
     @Override
     public String toString() {
-        return String.valueOf(getValue());
+        return String.valueOf(getAccessToken());
     }
 
 }
