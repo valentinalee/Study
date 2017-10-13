@@ -99,7 +99,7 @@ public class OAuthClient {
                                           Class<T> responseType) throws RestClientException {
         URI uri = url;
         AuthScheme authScheme = config.getAuthScheme();
-        OAuth2Token token = getAccessToken();
+        OAuth2Token token = fetchAccessToken();
         if (AuthScheme.query.equals(authScheme)
                 || AuthScheme.form.equals(authScheme)) {
             uri = appendQueryParameter(uri, token);
@@ -113,45 +113,66 @@ public class OAuthClient {
 
     protected <T> ResponseEntity<T> execute(String url,HttpMethod method, HttpEntity<?> requestEntity, Class<T> responseType) {
         URI uri = restTemplate.getUriTemplateHandler().expand(url);
-        ResponseEntity<T> result = restTemplate.exchange(uri,method,requestEntity,responseType);
-        handleResponse(result);
-        return result;
+        return this.execute(uri,method,requestEntity,responseType);
     }
 
     protected <T> ResponseEntity<T> execute(URI uri,HttpMethod method, HttpEntity<?> requestEntity, Class<T> responseType) {
         ResponseEntity<T> result = restTemplate.exchange(uri,method,requestEntity,responseType);
-        handleResponse(result);
+        try {
+            handleResponse(result);
+        }catch (OAuthException ex){
+            setAccessToken(null);
+            throw ex;
+        }
         return result;
     }
 
     protected <T> void handleResponse(ResponseEntity<T> responseEntity){
         HttpStatus status = responseEntity.getStatusCode();
+        T body = responseEntity.getBody();
         if(status == HttpStatus.UNAUTHORIZED) {
+            if(body != null && body instanceof JsonNode){
+                JsonNode obj = (JsonNode) body;
+                if(obj.hasNonNull("error")) {
+                    String error = obj.get("error").asText();
+                    String errmsg = obj.get("error_description").asText();
+                    throw new OAuthException(errmsg,error);
+                }
+            }
             throw new OAuthException("auth error!");
         }
     }
 
-    protected synchronized OAuth2Token getAccessToken() {
+    protected synchronized OAuth2Token fetchAccessToken() {
         //如果不存在，首先从缓存获取token
         if(accessToken == null && cache != null){
             accessToken = cache.readToken();
         }
         //如果token过期
         if(accessToken != null && accessToken.isExpired()){
-            accessToken = execRefreshReqest(accessToken);
+            setAccessToken(execRefreshReqest(accessToken));
         }
         if (accessToken == null) {
             //获取token
-            accessToken = execTokenReqest();
-            //保存token至缓存
-            if(accessToken != null && cache != null){
-                cache.storeToken(accessToken);
-            }
-        }
-        if(accessToken == null){
-            //log
+            setAccessToken(execTokenReqest());
         }
         return accessToken;
+    }
+
+    public OAuth2Token getAccessToken(){
+        return this.accessToken;
+    }
+
+    protected void setAccessToken(OAuth2Token token){
+        this.accessToken = token;
+        //清除缓存
+        if(cache != null) {
+            if (token == null) {
+                cache.removeToken();
+            } else {
+                cache.storeToken(token);
+            }
+        }
     }
 
     protected OAuth2Token execTokenReqest(){

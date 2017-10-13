@@ -1,9 +1,13 @@
 package com.sample.demo.client;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
 
+@JsonIgnoreProperties(value = {"expired", "expiresIn"})
 public class OAuth2Token  implements Serializable {
     private static final long serialVersionUID = 914967629530462926L;
 
@@ -62,6 +66,7 @@ public class OAuth2Token  implements Serializable {
         this.expiration = expiration;
     }
 
+    @JsonIgnoreProperties
     public boolean isExpired() {
         return expiration != null && expiration.before(new Date());
     }
