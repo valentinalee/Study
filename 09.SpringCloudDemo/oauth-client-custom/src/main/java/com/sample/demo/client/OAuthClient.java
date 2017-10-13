@@ -19,12 +19,12 @@ public class OAuthClient {
 
     private OAuth2Token accessToken;
     private OAuthConfig config;
-    private TokenCache cache;
+    private TokenCache tokenCache;
 
     private RestTemplate restTemplate = new RestTemplate();
 
     public OAuthClient(OAuthConfig config) {
-        this.config = config;
+        setConfig(config);
     }
 
     public OAuthClient(OAuthConfig config,RestTemplate template){
@@ -41,12 +41,12 @@ public class OAuthClient {
         return restTemplate;
     }
 
-    public TokenCache getCache() {
-        return cache;
+    public TokenCache getTokenCache() {
+        return tokenCache;
     }
 
-    public void setCache(TokenCache cache) {
-        this.cache = cache;
+    public void setTokenCache(TokenCache tokenCache) {
+        this.tokenCache = tokenCache;
     }
 
     public OAuthConfig getConfig() {
@@ -54,6 +54,7 @@ public class OAuthClient {
     }
 
     public void setConfig(OAuthConfig config) {
+        Assert.notNull(config, "config must not be null");
         this.config = config;
     }
 
@@ -144,28 +145,31 @@ public class OAuthClient {
     }
 
     protected synchronized OAuth2Token fetchAccessToken() {
-        //如果不存在，首先从缓存获取token
-        if(accessToken == null && cache != null){
-            accessToken = cache.readToken();
-        }
+        OAuth2Token token = getAccessToken();
         //如果token过期
-        if(accessToken != null && accessToken.isExpired()){
-            setAccessToken(execRefreshReqest(accessToken));
+        if(token != null && token.isExpired()){
+            token = execRefreshReqest(token);
         }
-        if (accessToken == null) {
+        if (token == null) {
             //获取token
-            setAccessToken(execTokenReqest());
+            token = execTokenReqest();
         }
-        return accessToken;
+        setAccessToken(token);
+        return token;
     }
 
     public OAuth2Token getAccessToken(){
+        //如果不存在，首先从缓存获取token
+        if(this.accessToken == null && this.tokenCache != null){
+            this.accessToken = this.tokenCache.readToken();
+        }
         return this.accessToken;
     }
 
     protected void setAccessToken(OAuth2Token token){
         this.accessToken = token;
         //清除缓存
+        TokenCache cache = this.getTokenCache();
         if(cache != null) {
             if (token == null) {
                 cache.removeToken();

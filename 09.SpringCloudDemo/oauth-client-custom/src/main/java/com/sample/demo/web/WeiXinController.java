@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
 
 @RestController
 @RequestMapping(value = "/weixin")
@@ -50,14 +49,15 @@ public class WeiXinController {
             config.getAdditionalTokenParams().set("grant_type", "client_credential");
             config.setAuthScheme(AuthScheme.form);
             weixinRestClient = new WeixinClient(config);
-            weixinRestClient.setCache(new RedisTokenCache(redisTemplate,"APIPROXY:TOKEN:weixin"));
+            weixinRestClient.setTokenCache(new RedisTokenCache(redisTemplate,"APIPROXY:TOKEN:weixin"));
         }
         return weixinRestClient;
     }
 
     class WeixinClient extends OAuthClient{
         private Integer[] ERROR_CODES = new Integer[]{40001,40002,40013,40014,40029,40030,41001,41002,41003,41004,41008,42001,4202,42013};
-
+        private final String ERRORCODE = "errcode";
+        private final String ERRORMSG = "errmsg";
 
         WeixinClient(OAuthConfig config) {
             super(config);
@@ -69,9 +69,9 @@ public class WeiXinController {
             T body = responseEntity.getBody();
             if(status == HttpStatus.OK && body != null && body instanceof JsonNode) {
                 JsonNode obj = (JsonNode) body;
-                if(obj.hasNonNull("errcode")) {
-                    Integer errcode = obj.get("errcode").asInt();
-                    String errmsg = obj.get("errmsg").asText();
+                if(obj.hasNonNull(ERRORCODE)) {
+                    Integer errcode = obj.get(ERRORCODE).asInt();
+                    String errmsg = obj.get(ERRORMSG).asText();
                     if(ArrayUtils.contains(ERROR_CODES,errcode)) {
                         throw new OAuthException(errmsg,errcode.toString());
                     } else {
@@ -92,8 +92,4 @@ public class WeiXinController {
             return null;
         }
     }
-
-
-
-
 }
