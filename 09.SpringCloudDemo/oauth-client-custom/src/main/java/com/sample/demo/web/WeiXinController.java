@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping(value = "/weixin")
 public class WeiXinController {
     private final Logger logger = Logger.getLogger(getClass());
+    private final String WEIXIN_BASE = "https://api.weixin.qq.com/cgi-bin/";
 
     private OAuthClient weixinRestClient;
     @Autowired
@@ -33,6 +35,13 @@ public class WeiXinController {
     @RequestMapping(value = "/getuser" ,method = RequestMethod.GET)
     public JsonNode getuser(HttpServletRequest request) {
         JsonNode r = getWeixinRestClient().getForObject("https://api.weixin.qq.com/cgi-bin/user/get", JsonNode.class);
+        return r;
+    }
+    @RequestMapping(path = "/**", method = RequestMethod.GET)
+    public JsonNode getForDefault(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        uri = StringUtils.replace(uri,"/weixin","");
+        JsonNode r = getWeixinRestClient().getForObject(WEIXIN_BASE + uri, JsonNode.class);
         return r;
     }
 

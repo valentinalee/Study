@@ -4,3 +4,6 @@ vendor
 
 .vscode
 debug
+
+*.iml
+.idea
