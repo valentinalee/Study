@@ -1,3 +1,0 @@
-package: demo
-import:
-- package: github.com/json-iterator/go
