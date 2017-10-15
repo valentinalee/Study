@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"regexp"
 
 	"github.com/PuerkitoBio/goquery"
 	"golang.org/x/net/html/charset"
@@ -51,6 +52,7 @@ type DataTable struct {
 
 type Nifdc struct {
 	config *NifdcConfig
+	logFunc func(msg string)
 }
 
 func (n *Nifdc) init(config *NifdcConfig) {
@@ -117,6 +119,7 @@ func (n *Nifdc) crawlItems(items ExtendItemSlice) *DataTable{
 
     for i := range oItems {
         item := oItems[i];
+		n.log(fmt.Sprintf("fetch %s %s",item.Title,item.URL))
         itemTable := n.crawlItem(item.URL);
         allItemData = append(allItemData, itemTable.Data...);
     }
@@ -171,20 +174,21 @@ func (n *Nifdc) crawlYear(info NifdcConfigInfo) []DataTable{
 				item.Title = el.Text()
 				item.URL = info.URL + href
 				item.Name = n.getSheetName(item.Title)
-				fmt.Printf("%v \n",item)
 				items = append(items,item)
 			})
+			allTitle := make([]string, 0, len(items))
 			gItems := make(map[string]ExtendItemSlice)
 			for _, v := range items {
 				if val, ok := gItems[v.Name]; ok {
 					gItems[v.Name] = append(val, v)
 				} else{
 					gItems[v.Name] = ExtendItemSlice{v}
+					allTitle = append(allTitle, v.Name)
 				}
-				
 			}
-			for _,v := range gItems{
-				dt := n.crawlItems(v)
+			
+			for _,v := range allTitle{
+				dt := n.crawlItems(gItems[v])
 				results = append(results,*dt)
 			}
 		}
@@ -196,7 +200,7 @@ func (n *Nifdc) getSheetName(title string) string {
 
 	lIdx := strings.LastIndex(title, "（")
 	rIdx := strings.LastIndex(title, "）")
-	return strings.TrimSpace(title[lIdx + 3 : rIdx]) //（占3个字节
+	return strings.TrimSpace(title[lIdx + len("（") : rIdx]) //（占3个字节
 }
 
 func (n *Nifdc) isSpecialCharacter(code rune) bool {
@@ -255,14 +259,77 @@ func (n *Nifdc) buildSheet(itemData *DataTable) *xlsx.Sheet{
     return sheet;
 }
 
+func (n *Nifdc) buildAllSheet(itemDatas []DataTable)  *xlsx.Sheet{
+	allSheet := new(xlsx.Sheet)
+	allSheet.Name = "ALL"
+
+	allTitle := make([]string, 0, len(itemDatas[0].TitelRow))
+	allTitle = append(allTitle, SHEET_NAME)
+	allTitleMap := make(map[string]bool)
+	for _,table := range itemDatas {
+		for _,t := range table.TitelRow {
+			if _, ok := allTitleMap[t]; !ok {
+				allTitleMap[t] = true
+				allTitle = append(allTitle, t)
+			}
+		}
+	}
+
+	//合并后的标题行
+	allTitle = append(allTitle,AMOUNT_VALUE_COL_NAME)
+	allTitle = append(allTitle,AMOUNT_UNIT_COL_NAME)
+	titleRow := allSheet.AddRow()
+	for _,t := range allTitle {
+		c := titleRow.AddCell()
+		c.Value = t
+	}
+
+	//循环itemDatas，合并数据
+	for _,item := range itemDatas {
+        //循环行
+		for _,r := range item.Data {
+			if n.isDataRow(&item.TitelRow, &r) { //仅合并数据行
+				row := allSheet.AddRow()
+				amount := n.findColData(&item.TitelRow, &r, AMOUNT_OLD_COL_NAME);
+				//循环列
+				for _,title := range allTitle {
+					cell := row.AddCell()
+					cell.Value = ""
+					if title == SHEET_NAME { //表格名
+						cell.Value = item.Name
+                    } else if title == AMOUNT_OLD_COL_NAME {
+							cell.Value = amount
+                    } else if title == AMOUNT_VALUE_COL_NAME {
+						aValue := regexp.MustCompile(`\d+`).FindAllString(amount,-1)
+						if aValue != nil && len(aValue) > 0 {
+							cell.Value = aValue[0] //数字
+						}
+                    } else if title == AMOUNT_UNIT_COL_NAME {
+						aUnit := regexp.MustCompile(`\D+`).FindAllString(amount,-1)
+						if aUnit != nil && len(aUnit) > 0 {
+							cell.Value = aUnit[0]
+						}
+                    } else {
+                        d := n.findColData(&item.TitelRow, &r, title);
+							cell.Value = d
+                    }
+                }
+            }
+		}
+	}
+
+    return allSheet;
+}
+
 func (n *Nifdc) buildWorkbook(itemDatas []DataTable) *xlsx.File{
     workbook := xlsx.NewFile()
 
+	allSheet := n.buildAllSheet(itemDatas);
+	workbook.AppendSheet(*allSheet,allSheet.Name)
 	for _,v := range itemDatas{
 		sheet := n.buildSheet(&v)
 		workbook.AppendSheet(*sheet,sheet.Name)
 	}
-    // let all_sheet = buildAllSheet(itemDatas);
 
     return workbook;
 }
@@ -270,4 +337,10 @@ func (n *Nifdc) buildWorkbook(itemDatas []DataTable) *xlsx.File{
 func (n *Nifdc) createYearWorkbook(info NifdcConfigInfo)  *xlsx.File{
     itemDatas := n.crawlYear(info);
     return n.buildWorkbook(itemDatas);
+}
+
+func (n *Nifdc) log(msg string){
+	if n.logFunc != nil{
+		n.logFunc(msg)
+	}
 }
