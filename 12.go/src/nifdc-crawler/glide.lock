@@ -1,0 +1,42 @@
+hash: 703bee63b957d75cbc1bea28d757ffb44d962883ac71150c40cf992bf8a24af8
+updated: 2017-10-15T11:22:05.3689696+08:00
+imports:
+- name: github.com/andybalholm/cascadia
+  version: 349dd0209470eabd9514242c688c403c0926d266
+- name: github.com/lxn/walk
+  version: a6909d92a047ebb0499ff2c40e2e9e789db37f99
+  subpackages:
+  - declarative
+- name: github.com/lxn/win
+  version: 6089bc412dd0ad5aef087cc517a35e9e217776e8
+- name: github.com/PuerkitoBio/goquery
+  version: e1271ee34c6a305e38566ecd27ae374944907ee9
+- name: github.com/tealeg/xlsx
+  version: 8be35264fa75a1bbe954ce51eba04f273e2c59e5
+- name: golang.org/x/net
+  version: a04bdaca5b32abe1c069418fb7088ae607de5bd0
+  subpackages:
+  - html
+  - html/atom
+  - html/charset
+- name: golang.org/x/text
+  version: c01e4764d870b77f8abe5096ee19ad20d80e8075
+  subpackages:
+  - encoding
+  - encoding/charmap
+  - encoding/htmlindex
+  - encoding/internal
+  - encoding/internal/identifier
+  - encoding/japanese
+  - encoding/korean
+  - encoding/simplifiedchinese
+  - encoding/traditionalchinese
+  - encoding/unicode
+  - internal/tag
+  - internal/utf8internal
+  - language
+  - runes
+  - transform
+- name: gopkg.in/Knetic/govaluate.v3
+  version: d216395917cc49052c7c7094cf57f09657ca08a8
+testImports: []

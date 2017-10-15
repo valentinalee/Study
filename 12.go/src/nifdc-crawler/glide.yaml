@@ -1,0 +1,16 @@
+package: nifdc-crawler
+import:
+- package: github.com/lxn/walk
+  subpackages:
+  - declarative
+- package: github.com/tealeg/xlsx
+  version: ^1.0.3
+- package: github.com/PuerkitoBio/goquery
+  version: ^1.1.0
+- package: golang.org/x/net
+  subpackages:
+  - html
+  - html/charset
+- package: golang.org/x/text
+  subpackages:
+  - transform
