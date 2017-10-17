@@ -1,13 +1,16 @@
 package com.sample.demo.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.*;
 import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -119,29 +122,38 @@ public class OAuthClient {
 
     protected <T> ResponseEntity<T> execute(URI uri,HttpMethod method, HttpEntity<?> requestEntity, Class<T> responseType) {
         ResponseEntity<T> result = null;
+        HttpStatusCodeException statusCodeException= null;
         try {
             result = restTemplate.exchange(uri,method,requestEntity,responseType);
-            handleResponse(result);
-        }catch (OAuthException ex){
+        } catch (HttpStatusCodeException ex){
+            statusCodeException = ex;
+        }
+        try{
+            handleErrorResponse(result,statusCodeException);
+        } catch (OAuthException ex){
             setAccessToken(null);
             throw ex;
         }
         return result;
     }
 
-    protected <T> void handleResponse(ResponseEntity<T> responseEntity){
-        HttpStatus status = responseEntity.getStatusCode();
-        T body = responseEntity.getBody();
-        if(status == HttpStatus.UNAUTHORIZED) {
-            if(body != null && body instanceof JsonNode){
-                JsonNode obj = (JsonNode) body;
-                if(obj.hasNonNull("error")) {
+    protected <T> void handleErrorResponse(ResponseEntity<T> responseEntity, HttpStatusCodeException ex) {
+        if(ex != null) {
+            if (ex.getStatusCode() == HttpStatus.UNAUTHORIZED) {
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode obj = null;
+                try {
+                    obj = mapper.readValue(ex.getResponseBodyAsByteArray(), JsonNode.class);
+                } catch (IOException e) {
+                    //忽略
+                }
+                if (obj != null && obj.hasNonNull("error")) {
                     String error = obj.get("error").asText();
                     String errmsg = obj.get("error_description").asText();
-                    throw new OAuthException(errmsg,error);
+                    throw new OAuthException(errmsg, error);
                 }
             }
-            throw new OAuthException("auth error!");
+            throw ex;
         }
     }
 

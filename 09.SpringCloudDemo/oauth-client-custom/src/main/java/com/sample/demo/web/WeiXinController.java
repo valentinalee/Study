@@ -1,6 +1,7 @@
 package com.sample.demo.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sample.demo.client.*;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
@@ -13,8 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpStatusCodeException;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 @RestController
 @RequestMapping(value = "/weixin")
@@ -73,20 +76,25 @@ public class WeiXinController {
         }
 
         @Override
-        protected <T> void handleResponse(ResponseEntity<T> responseEntity){
-            HttpStatus status = responseEntity.getStatusCode();
-            T body = responseEntity.getBody();
-            if(status == HttpStatus.OK && body != null && body instanceof JsonNode) {
-                JsonNode obj = (JsonNode) body;
-                if(obj.hasNonNull(ERRORCODE)) {
-                    Integer errcode = obj.get(ERRORCODE).asInt();
-                    String errmsg = obj.get(ERRORMSG).asText();
-                    if(ArrayUtils.contains(ERROR_CODES,errcode)) {
-                        throw new OAuthException(errmsg,errcode.toString());
-                    } else {
-                        throw new HttpClientErrorException(HttpStatus.BAD_REQUEST,errmsg);
+        protected <T> void handleErrorResponse(ResponseEntity<T> responseEntity, HttpStatusCodeException ex) {
+            if(responseEntity != null){
+                HttpStatus status = responseEntity.getStatusCode();
+                T body = responseEntity.getBody();
+                if(status == HttpStatus.OK && body != null && body instanceof JsonNode) {
+                    JsonNode obj = (JsonNode) body;
+                    if(obj.hasNonNull(ERRORCODE)) {
+                        Integer errcode = obj.get(ERRORCODE).asInt();
+                        String errmsg = obj.get(ERRORMSG).asText();
+                        if(ArrayUtils.contains(ERROR_CODES,errcode)) {
+                            throw new OAuthException(errmsg,errcode.toString());
+                        } else {
+                            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST,errmsg);
+                        }
                     }
                 }
+            }
+            if(ex != null) {
+                throw ex;
             }
         }
 

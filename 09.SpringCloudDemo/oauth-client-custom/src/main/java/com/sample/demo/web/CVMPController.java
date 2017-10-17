@@ -1,6 +1,7 @@
 package com.sample.demo.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sample.demo.client.*;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
@@ -11,9 +12,11 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 @RestController
 @RequestMapping(value = "/cvmp")
@@ -70,20 +73,23 @@ public class CVMPController {
         }
 
         @Override
-        protected <T> void handleResponse(ResponseEntity<T> responseEntity){
-            HttpStatus status = responseEntity.getStatusCode();
-            T body = responseEntity.getBody();
-            if(status == HttpStatus.UNAUTHORIZED && body != null && body instanceof JsonNode) {
-                JsonNode obj = (JsonNode) body;
-                if(obj.hasNonNull(ERRORCODE)) {
-                    Integer errcode = obj.get(ERRORCODE).asInt();
-                    String errmsg = obj.get(ERRORMSG).asText();
-                    if(ArrayUtils.contains(ERROR_CODES,errcode)) {
-                        throw new OAuthException(errmsg,errcode.toString());
-                    } else {
-                        throw new HttpClientErrorException(HttpStatus.BAD_REQUEST,errmsg);
+        protected <T> void handleErrorResponse(ResponseEntity<T> responseEntity, HttpStatusCodeException ex) {
+            if(ex != null) {
+                if (ex.getStatusCode() == HttpStatus.UNAUTHORIZED) {
+                    ObjectMapper mapper = new ObjectMapper();
+                    JsonNode obj = null;
+                    try {
+                        obj = mapper.readValue(ex.getResponseBodyAsByteArray(), JsonNode.class);
+                    } catch (IOException e) {
+                        //忽略
+                    }
+                    if (obj != null && obj.hasNonNull(ERRORCODE)) {
+                        Integer errcode = obj.get(ERRORCODE).asInt();
+                        String errmsg = obj.get(ERRORMSG).asText();
+                        throw new OAuthException(errmsg, errcode.toString());
                     }
                 }
+                throw ex;
             }
         }
 

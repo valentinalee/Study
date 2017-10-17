@@ -27,8 +27,8 @@ func AuthRequired() gin.HandlerFunc {
 			c.Next()
 		} else {
 			c.AbortWithStatusJSON(401, gin.H{
-				"error":             100000,
-				"error_description": "token error.",
+				"error_code": 100000,
+				"error_desc": "token error.",
 			})
 		}
 
@@ -55,8 +55,8 @@ func main() {
 				})
 			} else {
 				c.JSON(401, gin.H{
-					"error":             100208,
-					"error_description": "AppId or secret is not right.",
+					"error_code": 100208,
+					"error_desc": "AppId or secret is not right.",
 				})
 			}
 		})
@@ -77,14 +77,14 @@ func main() {
 					} else {
 
 						c.JSON(401, gin.H{
-							"error":             100006,
-							"error_description": "Refresh access token failed.",
+							"error_code": 100006,
+							"error_desc": "Refresh access token failed.",
 						})
 					}
 				} else {
 					c.JSON(401, gin.H{
-						"error":             100208,
-						"error_description": "AppId or secret is not right.",
+						"error_code": 100208,
+						"error_desc": "AppId or secret is not right.",
 					})
 				}
 			}
@@ -105,8 +105,8 @@ func main() {
 				})
 			} else {
 				c.JSON(400, gin.H{
-					"error":             100000,
-					"error_description": "error",
+					"error_code": 100000,
+					"error_desc": "error",
 				})
 			}
 		})
