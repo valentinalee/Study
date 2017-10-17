@@ -2,6 +2,7 @@ package main
 
 import "github.com/gin-gonic/gin"
 import "strings"
+import "fmt"
 
 type RefreshToken struct {
 	AppID        string `form:"appId" json:"appId" binding:"required"`
@@ -13,6 +14,7 @@ func AuthRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		appID := c.GetHeader("App_key")
 		auth := c.GetHeader("Authorization")
+		fmt.Printf("app_key:%s App_key:%s auth:%s \n", c.GetHeader("app_key"), c.GetHeader("App_key"), auth)
 		token := ""
 
 		authArray := strings.Split(auth, " ")

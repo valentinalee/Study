@@ -6,19 +6,17 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.*;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
 
 @RestController
-@RequestMapping(value = "/weixin")
+@RequestMapping(value = "/cvmp")
 public class CVMPController {
     private final Logger logger = Logger.getLogger(getClass());
 
@@ -26,18 +24,23 @@ public class CVMPController {
     @Autowired
     private RedisTemplate redisTemplate;
 
-    @RequestMapping(value = "/vehicles/{vin}" ,method = RequestMethod.POST)
-    public JsonNode vehicles(HttpServletRequest request,@PathVariable String vin) {
-        JsonNode r = getCvmpRestClient().getForObject("https://server:port/command/v1.0/vehicles/" + vin, JsonNode.class);
-        return r;
+    @RequestMapping(value = "/sendCommand" ,method = RequestMethod.POST)
+    public JsonNode vehicles(HttpServletRequest request, @RequestHeader HttpHeaders headers, @RequestBody JsonNode body) {
+//        JsonNode r = getCvmpRestClient().getForObject("https://localhost:10443/cvmp/api/v1.0/command/action/sendCommand", JsonNode.class);
+        MultiValueMap<String, String> h =new LinkedMultiValueMap<>();
+        h.set(HttpHeaders.CONTENT_TYPE,MediaType.APPLICATION_JSON_VALUE);
+        h.set("app_key","test");
+        HttpEntity entity = new HttpEntity<>(body,h);
+        ResponseEntity<JsonNode> r = getCvmpRestClient().exchange("https://localhost:10443/cvmp/api/v1.0/command/action/sendCommand", HttpMethod.POST,entity, JsonNode.class);
+        return r.getBody();
     }
 
     private OAuthClient getCvmpRestClient(){
         if(cvmpRestClient == null) {
             OAuthConfig config = new OAuthConfig();
-            config.setTokenUrl("https://server:port/iocm/app/sec/v1.1.0/login");
+            config.setTokenUrl("https://localhost:10443/cvmp/iocm/app/sec/v1.1.0/login");
             config.setUseRefreshUrl(true);
-            config.setRefreshUrl("https://server:port/iocm/app/sec/v1.1.0/refreshToken");
+            config.setRefreshUrl("https://localhost:10443/cvmp/iocm/app/sec/v1.1.0/refreshToken");
             config.setAppId("test");
             config.setAppSecret("test");
             config.setAppIdName("appId");
@@ -51,7 +54,7 @@ public class CVMPController {
     }
 
     class CVMPClient extends OAuthClient{
-        private Integer[] ERROR_CODES = new Integer[]{100208,100006,100208};
+        private Integer[] ERROR_CODES = new Integer[]{100000,100208,100006,100208};
         private final String ERRORCODE = "error_code";
         private final String ERRORMSG = "error_desc";
 

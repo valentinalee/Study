@@ -118,8 +118,9 @@ public class OAuthClient {
     }
 
     protected <T> ResponseEntity<T> execute(URI uri,HttpMethod method, HttpEntity<?> requestEntity, Class<T> responseType) {
-        ResponseEntity<T> result = restTemplate.exchange(uri,method,requestEntity,responseType);
+        ResponseEntity<T> result = null;
         try {
+            result = restTemplate.exchange(uri,method,requestEntity,responseType);
             handleResponse(result);
         }catch (OAuthException ex){
             setAccessToken(null);
@@ -269,15 +270,16 @@ public class OAuthClient {
     }
 
     protected  HttpEntity<?> addAuthorizationHeader(HttpEntity<?> request, OAuth2Token token){
-        if(token == null) {
+        if(request == null || token == null) {
             return request;
         }
-        HttpEntity<?> result = request;
-        if(result == null || result.getHeaders() == null){
-            HttpHeaders headers = new HttpHeaders();
-            result = new HttpEntity(request.getBody(),headers);
+        MultiValueMap<String, String> headers =new LinkedMultiValueMap<>();
+        if(request.getHeaders() != null) {
+            headers.setAll(request.getHeaders().toSingleValueMap());
         }
-        result.getHeaders().set("Authorization", String.format("%s %s", OAuth2Token.BEARER_TYPE, token.getAccessToken()));
+        headers.set("Authorization", String.format("%s %s", OAuth2Token.BEARER_TYPE, token.getAccessToken()));
+        HttpEntity<?> result = new HttpEntity<>(request.getBody(),headers);
+
         return result;
     }
 }
