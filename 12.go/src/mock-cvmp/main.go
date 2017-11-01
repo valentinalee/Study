@@ -1,8 +1,10 @@
+// set GOOS=linux& set GOARCH=amd64& go build
 package main
 
 import "github.com/gin-gonic/gin"
 import "strings"
 import "fmt"
+import "time"
 
 type RefreshToken struct {
 	AppID        string `form:"appId" json:"appId" binding:"required"`
@@ -112,10 +114,65 @@ func main() {
 		})
 	}
 
+	vehicles := r.Group("/api/vehicle/v1.0/vehicles")
+	vehicles.Use(AuthRequired())
+	{
+		vehicles.GET("/:vin/serviceDatas/latest/positions", func(c *gin.Context) {
+			vin := c.Param("vin")
+			tString := time.Now().Format("20060102T150405Z")
+			fmt.Println(tString)
+			c.JSON(200, gin.H{
+				"vin": vin,
+				"position": gin.H{
+					"longitude": "121.494638",
+					"latitude":  "31.29413",
+				},
+				"timestamp": tString,
+			})
+		})
+
+		vehicles.GET("/:vin/serviceDatas/latest/vehicleStates", func(c *gin.Context) {
+			vin := c.Param("vin")
+			c.JSON(200, gin.H{
+				"vin": vin,
+				"state": gin.H{
+					"totalMileage":             33255,
+					"autonomyMileage":          332,
+					"mileageBeforeMaintenance": 332,
+					"daysBeforeMaintenance":    33,
+					"engineWaterTemperature":   80,
+					"engineOilTemperature":     80,
+					"engineOilLevel":           80,
+					"fuelLevel":                80,
+					"totalVolumefuelConsumed":  80,
+					"eachVolumefuelConsumed":   80,
+					"jDAAlerts":                "xxxxx",
+					"vehicleState":             0,
+					"engineState": gin.H{
+						"state":   0,
+						"stateHY": nil,
+					},
+					"networkUsed":        80,
+					"rSSI":               -80,
+					"satelliteNumber":    80,
+					"backupBatteryLevel": 80,
+					"cANMessage": gin.H{
+						"canFrameId": 0,
+						"period":     0,
+						"offset":     0,
+						"bitsToRead": 0,
+						"value":      0,
+					},
+					"instantVehicleSpeed": 80,
+				},
+			})
+		})
+	}
+
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "hello",
 		})
 	})
-	r.Run() // listen and serve on 0.0.0.0:8080
+	r.Run(":53080") // listen and serve on 0.0.0.0:8080
 }
