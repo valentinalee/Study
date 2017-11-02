@@ -1,0 +1,21 @@
+{
+  "name": "cvmp-mock",
+  "version": "0.1.0",
+  "description": "cvmp mock",
+  "private": true,
+  "scripts": {
+    "start": "node app.js",
+    "debug": "node --inspect --debug-brk app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "koa": "^2.3.0",
+    "koa-body": "^2.3.0",
+    "koa-router": "^7.2.1",
+    "lodash": "^4.17.4",
+    "moment": "^2.19.1",
+    "uuid": "^3.1.0"
+  },
+  "devDependencies": {}
+}
