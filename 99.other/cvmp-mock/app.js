@@ -495,6 +495,49 @@ router.get('/api/vehicle/v1.0/vehicles/:vin/events', async (ctx) => {
   }
 })
 
+// 1.6.1 Wi-Fi Information Modification
+router.put('/api/vehicle/v1.0/configurations/wifi', async (ctx) => {
+  let body = ctx.request.body;
+  let vin = body.vin;
+  let callbackUrl = body.callBackUrl;
+  if (validator.isURL(callbackUrl)) {
+    if (vin) {
+      ctx.status = 200;
+      ctx.body = {};
+    } else {
+      ctx.status = 400;
+      ctx.body = {
+        "error_code": "100xxx",
+        "error_desc": "The VIN is not existed.",
+      };
+    }
+  } else {
+    ctx.status = 400;
+    ctx.body = {
+      "error_code": 100022,
+      "error_desc": "The request callbackurl is illegal.",
+    };
+  }
+})
+
+// 1.6.3 Wi-Fi Information Query
+router.get('/api/vehicle/v1.0/configurations/wifi', async (ctx) => {
+  let vin = ctx.query.vin;
+  if (vin) {
+    ctx.body = {
+      "wifiSsid": "myWifi",
+      "wifiPassword": "mypwd"
+    };
+  } else {
+    ctx.status = 400;
+    ctx.body = {
+      "error_code": "100xxx",
+      "error_desc": "The VIN is not existed.",
+    };
+  }
+})
+
+
 // 数据套件
 // 3.1.1
 router.get('/api/vehicle/v1.0/vehicles/:vin/serviceDatas/latest/positions', async (ctx) => {
