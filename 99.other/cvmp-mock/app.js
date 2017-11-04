@@ -225,8 +225,8 @@ router.put('/api/vehicle/v1.0/elementaryServices/:elemServiceId', async (ctx) =>
   if (elemServiceId) {
     let idx = _.findIndex(elementaryServices, function (o) { return _.eq(o.elemServiceId, elemServiceId); });
     if (idx >= 0) {
-      elementaryServices[idx].servElemVersion = body.servElemVersion;
-      elementaryServices[idx].servElemLabel = body.servElemLabel;
+      delete body.elemServiceId;
+      _.assignIn(elementaryServices[idx], body);
       ctx.body = elementaryServices[idx];
     } else {
       ctx.status = 400;
@@ -537,9 +537,134 @@ router.get('/api/vehicle/v1.0/configurations/wifi', async (ctx) => {
   }
 })
 
+//1.7
+let geoFences = [];
+
+// 1.7.1 Create a Geo-Fence  
+router.post('/api/vehicle/v1.0/geoFences', async (ctx) => {
+  let body = ctx.request.body;
+  let vin = body.vin;
+  if (vin) {
+    body.geofenceId = uuidv4();
+    geoFences = _.concat(geoFences, body);
+    let result = _.clone(body);
+    result.requestId = uuidv4();
+    ctx.status = 201;
+    ctx.body = result;
+  } else {
+    ctx.status = 400;
+    ctx.body = {
+      "error_code": "100xxx",
+      "error_desc": "The VIN is not existed.",
+    };
+  }
+})
+
+// 1.7.2 Delete a Geo-Fence 
+router.delete('/api/vehicle/v1.0/geoFences/:geofenceId', async (ctx) => {
+  let geofenceId = ctx.params.geofenceId;
+  if (geofenceId) {
+    let idx = _.findIndex(geoFences, function (o) { return _.eq(o.geofenceId, geofenceId); });
+    if (idx >= 0) {
+      _.pullAt(geoFences, idx);
+      ctx.status = 204;
+    } else {
+      ctx.status = 400;
+      ctx.body = {
+        "error_code": "100xxx",
+        "error_desc": "The geofence is not existed.",
+      };
+    }
+  } else {
+    ctx.status = 400;
+    ctx.body = {
+      "error_code": 100022,
+      "error_desc": "The input is invalid.",
+    };
+  }
+})
+
+// 1.7.3 Update a Geo-Fence 
+router.put('/api/vehicle/v1.0/geoFences/:geofenceId', async (ctx) => {
+  let geofenceId = ctx.params.geofenceId;
+  let body = ctx.request.body;
+  if (geofenceId) {
+    let idx = _.findIndex(geoFences, function (o) { return _.eq(o.geofenceId, geofenceId); });
+    if (idx >= 0) {
+      delete body.geofenceId;
+      _.assignIn(geoFences[idx], body);
+      ctx.body = geoFences[idx];
+    } else {
+      ctx.status = 400;
+      ctx.body = {
+        "error_code": "100xxx",
+        "error_desc": "The geofence is not existed.",
+      };
+    }
+  } else {
+    ctx.status = 400;
+    ctx.body = {
+      "error_code": 100022,
+      "error_desc": "The input is invalid.",
+    };
+  }
+})
+
+// 1.7.4 Query a Geo-Fence 
+router.get('/api/vehicle/v1.0/geoFences/:geofenceId', async (ctx) => {
+  let geofenceId = ctx.params.geofenceId;
+  if (geofenceId) {
+    let idx = _.findIndex(geoFences, function (o) { return _.eq(o.geofenceId, geofenceId); });
+    if (idx >= 0) {
+      ctx.body = geoFences[idx];
+    } else {
+      ctx.status = 400;
+      ctx.body = {
+        "error_code": "100xxx",
+        "error_desc": "The geofence is not existed.",
+      };
+    }
+  } else {
+    ctx.status = 400;
+    ctx.body = {
+      "error_code": 100022,
+      "error_desc": "The input is invalid.",
+    };
+  }
+})
+
+// 1.7.5 Query all Geo-fences
+router.get('/api/vehicle/v1.0/geoFences', async (ctx) => {
+  let vin = ctx.query.vin;
+  let pageNo = parseInt(ctx.query.pageNo);
+  let pageSize = parseInt(ctx.query.pageSize);
+  if (_.isNaN(pageNo)) {
+    pageNo = 0;
+  }
+  if (_.isNaN(pageSize)) {
+    pageSize = 1;
+  }
+  if (vin && _.isNumber(pageNo) && pageNo >= 0 && _.isNumber(pageSize) && pageSize > 0) {
+    let all = _.filter(geoFences, ['vin', vin]);
+    let ls = _.slice(all, pageNo * pageSize, (pageNo + 1) * pageSize);
+    ctx.body = {
+      totalCount: all.length,
+      pageNo: pageNo,
+      pageSize: pageSize,
+      geofences: ls
+    };
+  } else {
+    ctx.status = 400;
+    ctx.body = {
+      "error_code": 100022,
+      "error_desc": "The input is invalid.",
+    };
+  }
+})
+
 
 // 数据套件
-// 3.1.1
+// 3.1.1 位置快照查询
 router.get('/api/vehicle/v1.0/vehicles/:vin/serviceDatas/latest/positions', async (ctx) => {
   let vin = ctx.params.vin;
   let tString = moment().format("YYYYMMDDTHHmmss\\Z");
@@ -553,7 +678,7 @@ router.get('/api/vehicle/v1.0/vehicles/:vin/serviceDatas/latest/positions', asyn
   };
 })
 
-// 3.1.2
+// 3.1.2 车况快照查询
 router.get('/api/vehicle/v1.0/vehicles/:vin/serviceDatas/latest/vehicleStates', async (ctx) => {
   let vin = ctx.params.vin;
   ctx.body = {
@@ -573,7 +698,7 @@ router.get('/api/vehicle/v1.0/vehicles/:vin/serviceDatas/latest/vehicleStates', 
       "vehicleState": 0,
       "engineState": {
         "state": 0,
-        "stateHY": nil,
+        "stateHY": null,
       },
       "networkUsed": 80,
       "rSSI": -80,
@@ -588,6 +713,114 @@ router.get('/api/vehicle/v1.0/vehicles/:vin/serviceDatas/latest/vehicleStates', 
       },
       "instantVehicleSpeed": 80,
     },
+  };
+})
+
+// 3.1.3 车况报告查询
+router.get('/api/vehicle/v1.0/vehicles/:vin/serviceDatas/reports/vehicleState', async (ctx) => {
+  let vin = ctx.params.vin;
+  let type = ctx.query.type;
+  let date = ctx.query.date;
+  ctx.body = {
+    "vin": vin,
+    "report": {
+      "totalMileage": 16777214,
+      "levelOfEngineOil": 123,
+      "levelOfFuel": 432,
+      "mileageBeforeMaintenance": 643,
+    }
+  };
+})
+
+// 3.1.4 历史轨迹查询
+router.get('/api/vehicle/v1.0/vehicles/:vin/serviceDatas/history/positions', async (ctx) => {
+  let vin = ctx.params.vin;
+  let pageNo = parseInt(ctx.query.pageNo);
+  let pageSize = parseInt(ctx.query.pageSize);
+  let startTime = ctx.query.startTime;
+  let endTime = ctx.query.endTime;
+  ctx.body = {
+    "vin": vin,
+    "totalCount": 2,
+    "pageNo": 0,
+    "pageSize": 20,
+    "positionInfos":
+    [
+      {
+        "position ":
+        {
+          "longitude ": "648000000",
+          "latitude ": "648000000"
+        },
+        "timestamp": "20151212T121212Z "
+      },
+
+      {
+        "position ":
+        {
+          "longitude ": "648000000",
+          "latitude ": "648000000"
+        },
+        "timestamp": "20151212T121212Z "
+      },
+    ]
+  };
+})
+
+// 3.1.5 保养信息查询
+router.get('/api/vehicle/v1.0/vehicles/:vin/serviceDatas/history/maintenances', async (ctx) => {
+  let vin = ctx.params.vin;
+  ctx.body = {
+    "vin": vin,
+    "maintenance": {},
+    "selfDiag": {},
+  };
+})
+
+// 3.1.6 驾驶行为评分查询
+router.get('/api/vehicle/v1.0/vehicles/:vin/analysisDatas/scores/drivingBehaviors/trips/:tripId', async (ctx) => {
+  let vin = ctx.params.vin;
+  let tripId = ctx.params.tripId;
+  ctx.body = {
+    "vin": vin,
+    "tripId": tripId,
+    "scores ": "95.66",
+    "data": {}
+  };
+})
+
+// 3.1.7 驾驶行为报告查询
+router.get('/api/vehicle/v1.0/vehicles/:vin/analysisDatas/reports/drivingBehavior', async (ctx) => {
+  let vin = ctx.params.vin;
+  let type = ctx.query.type;
+  let date = ctx.query.date;
+  ctx.body = {
+    "vin": vin,
+    "report": {}
+  };
+})
+
+// 3.1.8 里程油耗排名查询
+router.get('/api/vehicle/v1.0/vehicles/:vin/analysisDatas/ranking/fuelConsumptions', async (ctx) => {
+  let vin = ctx.params.vin;
+  let type = ctx.query.type;
+  let date = ctx.query.date;
+  ctx.body = {
+    "vin": vin,
+    "ranking": {"mileage": "80.68%",
+		"fuel": "85.68%"
+}
+  };
+})
+
+// 3.1.9 环保驾驶报告查询
+router.get('/api/vehicle/v1.0/vehicles/:vin/analysisDatas/reports/ecoDrivings', async (ctx) => {
+  let vin = ctx.params.vin;
+  let type = ctx.query.type;
+  let date = ctx.query.date;
+  ctx.body = {
+    "vin": vin,
+    "ecoDriving": {}
   };
 })
 
