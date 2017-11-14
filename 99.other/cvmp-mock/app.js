@@ -15,6 +15,7 @@ const rp = require('request-promise-native');
 const port = 53080; //端口
 
 const app = new koa();
+const useCvmpProxy = false;
 
 app.use(koaBody());
 
@@ -94,58 +95,60 @@ const proxy = async (ctx) => {
 router.use('/api', authRequiredProxy);
 
 // 1.1.1 Authentication
-// router.post('/iocm/app/sec/v1.1.0/login', async (ctx) => {
-//   let appId = ctx.request.body.appId;
-//   let secret = ctx.request.body.secret;
-//   if ((appId == "test") && (secret == "test")) {
-//     ctx.body = {
-//       "accessToken": "950a7cc9-5a8a-42c9-a693-40e817b1a4b0",
-//       "tokenType": "bearer",
-//       "expiresIn": 7200,
-//       "refreshToken": "773a0fcd-6023-45f8-8848-e141296cb3cb",
-//       "scope": "default",
-//     };
-//   } else {
-//     ctx.status = 401;
-//     ctx.body = {
-//       "error_code": 100208,
-//       "error_desc": "AppId or secret is not right.",
-//     };
-//   }
-// })
 router.post('/iocm/app/sec/v1.1.0/login', async (ctx) => {
-  await proxy(ctx);
+  if(useCvmpProxy){
+    await proxy(ctx);
+    return;
+  }
+  let appId = ctx.request.body.appId;
+  let secret = ctx.request.body.secret;
+  if (appId && secret) {
+    ctx.body = {
+      "accessToken": "950a7cc9-5a8a-42c9-a693-40e817b1a4b0",
+      "tokenType": "bearer",
+      "expiresIn": 7200,
+      "refreshToken": "773a0fcd-6023-45f8-8848-e141296cb3cb",
+      "scope": "default",
+    };
+  } else {
+    ctx.status = 401;
+    ctx.body = {
+      "error_code": 100208,
+      "error_desc": "AppId or secret is not right.",
+    };
+  }
 })
 
 // 1.1.2 Token Refreshing
-// router.post('/iocm/app/sec/v1.1.0/refreshToken', async (ctx) => {
-//   let token = ctx.request.body;
-//   if (token.appId == "test" && token.secret == "test") {
-//     if (token.refreshToken == "773a0fcd-6023-45f8-8848-e141296cb3cb") {
-//       ctx.body = {
-//         "accessToken": "56465b41-429d-436c-ad8d-613d476ff322",
-//         "tokenType": "bearer",
-//         "expiresIn": 7200,
-//         "refreshToken": "773a0fcd-6023-45f8-8848-e141296cb3cb",
-//         "scope": "default",
-//       };
-//     } else {
-//       ctx.status = 401;
-//       ctx.body = {
-//         "error_code": 100006,
-//         "error_desc": "Refresh access token failed.",
-//       };
-//     }
-//   } else {
-//     ctx.status = 401;
-//     ctx.body = {
-//       "error_code": 100208,
-//       "error_desc": "AppId or secret is not right.",
-//     };
-//   }
-// })
 router.post('/iocm/app/sec/v1.1.0/refreshToken', async (ctx) => {
-  await proxy(ctx);
+  if(useCvmpProxy){
+    await proxy(ctx);
+    return;
+  }
+  let token = ctx.request.body;
+  if (token.appId == "test" && token.secret == "test") {
+    if (token.refreshToken == "773a0fcd-6023-45f8-8848-e141296cb3cb") {
+      ctx.body = {
+        "accessToken": "56465b41-429d-436c-ad8d-613d476ff322",
+        "tokenType": "bearer",
+        "expiresIn": 7200,
+        "refreshToken": "773a0fcd-6023-45f8-8848-e141296cb3cb",
+        "scope": "default",
+      };
+    } else {
+      ctx.status = 401;
+      ctx.body = {
+        "error_code": 100006,
+        "error_desc": "Refresh access token failed.",
+      };
+    }
+  } else {
+    ctx.status = 401;
+    ctx.body = {
+      "error_code": 100208,
+      "error_desc": "AppId or secret is not right.",
+    };
+  }
 })
 
 // 1.2.1 Common Events Subscription
@@ -224,6 +227,7 @@ router.put('/api/vehicle/v1.0/xcalls/:caseId', async (ctx) => {
 router.get('/api/vehicle/v1.0/xcalls', async (ctx) => {
   let vin = ctx.query.vin;
   let caseId = ctx.query.caseId;
+  let type = ctx.query.type;
   if (vin || caseId) {
     ctx.body = {
       "xcallInfos": [
@@ -332,6 +336,25 @@ router.get('/api/vehicle/v1.0/xcalls', async (ctx) => {
           }
         }
       ]
+    };
+  } else {
+    ctx.status = 400;
+    ctx.body = {
+      "error_code": 100022,
+      "error_desc": "The input is invalid.",
+    };
+  }
+})
+
+// 1.3.4 xCall CallBack 
+router.get('/api/vehicle/v1.0/xcalls/:caseId', async (ctx) => {
+  let vin = ctx.query.vin;
+  let caseId = ctx.params.caseId;
+  let type = ctx.query.type;
+  if (caseId) {
+    ctx.body = {
+      "status": "success",
+      "pfid": uuidv4()
     };
   } else {
     ctx.status = 400;
@@ -576,32 +599,33 @@ router.get('/api/vehicle/v1.0/vehicles/:vin/elementaryServices', async (ctx) => 
 })
 
 // 1.4.7 Service Activation/Deactivation
-// router.put('/api/vehicle/v1.0/vehicles/elementaryServices', async (ctx) => {
-//   let body = ctx.request.body.root;
-//   let vin = body.vin;
-//   let requestId = body.requestId;
-//   if (body.businessServices) {
-//     if (vin) {
-//       requestId = requestId ? requestId : uuidv4();
-//       ctx.status = 200;
-//       ctx.body = {requestId: requestId };
-//     } else {
-//       ctx.status = 400;
-//       ctx.body = {
-//         "error_code": "100xxx",
-//         "error_desc": "The VIN is not existed.",
-//       };
-//     }
-//   } else {
-//     ctx.status = 400;
-//     ctx.body = {
-//       "error_code": 100022,
-//       "error_desc": "The input is invalid.",
-//     };
-//   }
-// })
 router.put('/api/vehicle/v1.0/vehicles/elementaryServices', async (ctx) => {
-  await proxy(ctx);
+  if(useCvmpProxy){
+    await proxy(ctx);
+    return;
+  }
+  let body = ctx.request.body.root;
+  let vin = body.vin;
+  let requestId = body.requestId;
+  if (body.businessServices) {
+    if (vin) {
+      requestId = requestId ? requestId : uuidv4();
+      ctx.status = 200;
+      ctx.body = {requestId: requestId };
+    } else {
+      ctx.status = 400;
+      ctx.body = {
+        "error_code": "100xxx",
+        "error_desc": "The VIN is not existed.",
+      };
+    }
+  } else {
+    ctx.status = 400;
+    ctx.body = {
+      "error_code": 100022,
+      "error_desc": "The input is invalid.",
+    };
+  }
 })
 
 // 1.5.2 Vehicle Basic Information Query
