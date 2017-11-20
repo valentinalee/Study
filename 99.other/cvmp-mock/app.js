@@ -607,11 +607,14 @@ router.put('/api/vehicle/v1.0/vehicles/elementaryServices', async (ctx) => {
   let body = ctx.request.body.root;
   let vin = body.vin;
   let requestId = body.requestId;
-  if (body.businessServices) {
+  if (body.businessService) {
     if (vin) {
       requestId = requestId ? requestId : uuidv4();
       ctx.status = 200;
-      ctx.body = {requestId: requestId };
+      ctx.body = {
+        requestId: requestId,
+        requestStatus:  "10",
+      };
     } else {
       ctx.status = 400;
       ctx.body = {
@@ -634,10 +637,6 @@ router.get('/api/vehicle/v1.0/vehicles/:vin/genericConfigurations', async (ctx) 
   if (vin) {
     ctx.body = {
       "vin": vin,
-      "imei": "350000000000084",
-      "imsi": "S20800000000084",
-      "msisdn": "33669000000",
-      "iccid": "8935201641000000084",
       "uins":
       [
         {
@@ -645,9 +644,14 @@ router.get('/api/vehicle/v1.0/vehicles/:vin/genericConfigurations', async (ctx) 
           "deviceType": "ATB",
           "swVersion": "xxxx",
           "hwVersion": "xxxx",
-          "brand":"xxxx",
+          "imei": "350000000000084",
+          "imsi": "S20800000000084",
+          "msisdn": "33669000000",
+          "iccid": "8935201641000000084",
+          "manufacture":"CONTINENA",
           "name":"xxxx",
-          "atbType":"xxxx",
+          "modleType":"ATB1",
+          "ecuType":"",
           "remark":"xxxx",
         },
         {
@@ -655,11 +659,16 @@ router.get('/api/vehicle/v1.0/vehicles/:vin/genericConfigurations', async (ctx) 
           "deviceType": "NAC",
           "swVersion": "xxxx",
           "hwVersion": "xxxx",
-          "brand":"xxxx",
+          "imei": "350000000000081",
+          "imsi": "S20800000000081",
+          "msisdn": "33669000001",
+          "iccid": "8935201641000000081",
+          "manufacture":"MM",
           "name":"xxxx",
-          "atbType":"xxxx",
+          "modleType":"RA",
+          "ecuType":"NAC_WAVE1",
           "remark":"xxxx",
-        }
+        },
       ]
     };
   } else {
