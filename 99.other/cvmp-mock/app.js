@@ -15,7 +15,7 @@ const rp = require('request-promise-native');
 const port = 53080; //端口
 
 const app = new koa();
-const useCvmpProxy = false;
+const useCvmpProxy = true;
 
 app.use(koaBody());
 
@@ -76,18 +76,33 @@ const proxy = async (ctx) => {
     "rejectUnauthorized": false,
     resolveWithFullResponse: true,
     method: ctx.method,
-    uri: 'https://117.78.60.188:8743' + ctx.url,
+    uri: 'http://49.4.11.214:8740' + ctx.url,
     qs:ctx.query,
     json: true,
   };
+  if(ctx.header.app_key){
+    options.headers = {
+      'app_key': ctx.header.app_key,
+      'Authorization': ctx.header.authorization,
+    };
+  }
   if(ctx.request.type == "application/x-www-form-urlencoded"){
     options.form = ctx.request.body;
   }else{
     options.body = ctx.request.body;
   }
-  const response = await rp(options);
-  ctx.body = response.body;
-  ctx.status = response.statusCode;
+  console.log(options);
+  try {
+    const response = await rp(options);
+    ctx.body = response.body;
+    ctx.status = response.statusCode;
+  } catch (err) {
+    console.log(err);
+    if (err.name == "StatusCodeError") {
+      ctx.body = err.error;
+      ctx.status = err.statusCode;
+    }
+  }
 }
 
 
@@ -201,6 +216,10 @@ router.post('/api/vehicle/v1.0/commands', async (ctx) => {
 
 // 1.3.2 Call Center Close xCall
 router.put('/api/vehicle/v1.0/xcalls/:caseId', async (ctx) => {
+  if(useCvmpProxy){
+    await proxy(ctx);
+    return;
+  }
   let caseId = ctx.params.caseId;
   let body = ctx.request.body;
   if (caseId) {
@@ -599,12 +618,12 @@ router.get('/api/vehicle/v1.0/vehicles/:vin/elementaryServices', async (ctx) => 
 })
 
 // 1.4.7 Service Activation/Deactivation
-router.put('/api/vehicle/v1.0/vehicles/elementaryServices', async (ctx) => {
+router.post('/api/vehicle/v1.0/vehicles/elementaryServices', async (ctx) => {
   if(useCvmpProxy){
     await proxy(ctx);
     return;
   }
-  let body = ctx.request.body.root;
+  let body = ctx.request.body.Root;
   let vin = body.vin;
   let requestId = body.requestId;
   if (body.businessService) {
@@ -633,6 +652,10 @@ router.put('/api/vehicle/v1.0/vehicles/elementaryServices', async (ctx) => {
 
 // 1.5.2 Vehicle Basic Information Query
 router.get('/api/vehicle/v1.0/vehicles/:vin/genericConfigurations', async (ctx) => {
+  if(useCvmpProxy){
+    await proxy(ctx);
+    return;
+  }
   let vin = ctx.params.vin;
   if (vin) {
     ctx.body = {
@@ -716,6 +739,10 @@ router.get('/api/vehicle/v1.0/vehicles/:vin/events', async (ctx) => {
 
 // 1.6.1 Wi-Fi Information Modification
 router.put('/api/vehicle/v1.0/configurations/wifi', async (ctx) => {
+  if(useCvmpProxy){
+    await proxy(ctx);
+    return;
+  }
   let body = ctx.request.body;
   let vin = body.vin;
   let callbackUrl = body.callBackUrl;
@@ -740,21 +767,21 @@ router.put('/api/vehicle/v1.0/configurations/wifi', async (ctx) => {
 })
 
 // 1.6.3 Wi-Fi Information Query
-router.get('/api/vehicle/v1.0/configurations/wifi', async (ctx) => {
-  let vin = ctx.query.vin;
-  if (vin) {
-    ctx.body = {
-      "wifiSsid": "myWifi",
-      "wifiPassword": "mypwd"
-    };
-  } else {
-    ctx.status = 400;
-    ctx.body = {
-      "error_code": "100xxx",
-      "error_desc": "The VIN is not existed.",
-    };
-  }
-})
+// router.get('/api/vehicle/v1.0/configurations/wifi', async (ctx) => {
+//   let vin = ctx.query.vin;
+//   if (vin) {
+//     ctx.body = {
+//       "wifiSsid": "myWifi",
+//       "wifiPassword": "mypwd"
+//     };
+//   } else {
+//     ctx.status = 400;
+//     ctx.body = {
+//       "error_code": "100xxx",
+//       "error_desc": "The VIN is not existed.",
+//     };
+//   }
+// })
 
 //1.7
 let geoFences = [];
