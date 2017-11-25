@@ -11,6 +11,12 @@ const uuidv4 = require('uuid/v4');
 const url = require("url");
 const validator = require('validator');
 const rp = require('request-promise-native');
+const fs = require('fs');
+const path = require('path');
+
+const certFile = path.resolve(__dirname, 'ssl/client.crt');
+const keyFile = path.resolve(__dirname, 'ssl/client.key');
+const caFile = path.resolve(__dirname, 'ssl/ca.pem');
 
 const port = 53080; //端口
 
@@ -76,7 +82,10 @@ const proxy = async (ctx) => {
     "rejectUnauthorized": false,
     resolveWithFullResponse: true,
     method: ctx.method,
-    uri: 'http://49.4.11.214:8740' + ctx.url,
+    uri: 'https://49.4.11.214:8743' + ctx.url,
+    cert: fs.readFileSync(certFile),
+    key: fs.readFileSync(keyFile),
+    ca: fs.readFileSync(caFile),
     qs:ctx.query,
     json: true,
   };
