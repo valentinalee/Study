@@ -5,7 +5,7 @@ services:
     container_name: registry_mirror
     restart: always
     volumes:
-      - /opt/registry/data:/var/lib/registry
-      - /opt/registry/config.yml:/etc/docker/registry/config.yml
+      - ./data:/var/lib/registry
+      - ./config.yml:/etc/docker/registry/config.yml
     ports:
       - 5000:5000
