@@ -13,6 +13,7 @@
                 <!--<KeyValuePair key="service" value="log4j2"/>-->
             <!--</GelfLayout>-->
             <JSONLayout compact="true" eventEol="true" >
+                <KeyValuePair key="srv" value="log4j2"/>
             </JSONLayout>
         </File>
         <!--<Socket name="Logstash" host="192.168.190.130" port="5000" protocol="UDP">-->
@@ -24,6 +25,7 @@
         <Socket name="Logstash" host="192.168.190.130" port="6000" protocol="TCP">
             <!--<PatternLayout pattern="${PATTERN}" />-->
             <JSONLayout compact="true" eventEol="true" >
+                <KeyValuePair key="srv" value="log4j2"/>
             </JSONLayout>
         </Socket>
         <!-- logstash中添加filter
