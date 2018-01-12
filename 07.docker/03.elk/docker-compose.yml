@@ -8,7 +8,7 @@ services:
     environment:
       - "discovery.type=single-node"
     volumes:
-      - ./data/es:/usr/share/elasticsearch
+      - ./data/es/data:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
       - 9300:9300

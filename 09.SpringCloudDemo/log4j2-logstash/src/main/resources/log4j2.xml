@@ -15,17 +15,17 @@
             <JSONLayout compact="true" eventEol="true" >
             </JSONLayout>
         </File>
-        <Socket name="Logstash" host="172.23.111.13" port="25100" protocol="UDP">
-            <!--<PatternLayout pattern="${PATTERN}" />-->
-            <GelfLayout compressionType="GZIP" compressionThreshold="1">
-            <KeyValuePair key="srv" value="log4j2"/>
-            </GelfLayout>
-        </Socket>
-        <!--<Socket name="Logstash" host="172.23.111.13" port="25200" protocol="TCP">-->
+        <!--<Socket name="Logstash" host="192.168.190.130" port="5000" protocol="UDP">-->
             <!--&lt;!&ndash;<PatternLayout pattern="${PATTERN}" />&ndash;&gt;-->
-            <!--<JSONLayout compact="true" eventEol="true" >-->
-            <!--</JSONLayout>-->
+            <!--<GelfLayout compressionType="GZIP" compressionThreshold="1">-->
+            <!--<KeyValuePair key="srv" value="log4j2"/>-->
+            <!--</GelfLayout>-->
         <!--</Socket>-->
+        <Socket name="Logstash" host="192.168.190.130" port="6000" protocol="TCP">
+            <!--<PatternLayout pattern="${PATTERN}" />-->
+            <JSONLayout compact="true" eventEol="true" >
+            </JSONLayout>
+        </Socket>
         <!-- logstash中添加filter
         grok {
         match => {
