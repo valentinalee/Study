@@ -1,0 +1,45 @@
+version: '2'
+
+services:
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.1.1
+    container_name: elasticsearch
+    environment:
+      - "discovery.type=single-node"
+    volumes:
+      - ./data/es/data:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+      - 9300:9300
+
+  logstash-collector:
+    image: docker.elastic.co/logstash/logstash:6.1.1
+    links:
+    - redis:redis
+    volumes:
+    - ./data/logstash/logstash-collector.conf:/usr/share/logstash/pipeline/logstash.conf
+    ports:
+      - 6000:6000
+
+  logstash-indexer:
+    image: docker.elastic.co/logstash/logstash:6.1.1
+    links:
+    - redis:redis
+    - elasticsearch:elasticsearch
+    volumes:
+    - ./data/logstash/logstash-indexer.conf:/usr/share/logstash/pipeline/logstash.conf
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:6.1.1
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+    # volumes:
+    #   - ./data/kibana: /usr/share/kibana/config
+    ports:
+      - 5601:5601
+    links:
+    - elasticsearch:elasticsearch
+
+  redis:
+      image: redis:3.2-alpine
