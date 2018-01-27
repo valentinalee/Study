@@ -1,0 +1,70 @@
+version: '2'
+services:
+  web:
+    image: marcosamm/pinpoint-web:1.6.2
+    environment:
+      ADMIN_PASSWORD: admin123
+      BATCH_ENABLE: 'true'
+      CLUSTER_ENABLE: 'true'
+      CLUSTER_WEB_TCP_PORT: '9997'
+      CLUSTER_ZOOKEEPER_ADDRESS: hbase
+      DISABLE_DEBUG: 'true'
+      HBASE_HOST: hbase
+      HBASE_PORT: '2181'
+      JDBC_DRIVER: com.mysql.jdbc.Driver
+      JDBC_PASSWORD: admin
+      JDBC_URL: jdbc:mysql://mysql:3306/pinpoint?characterEncoding=UTF-8
+      JDBC_USERNAME: admin
+      MAIL_HOST: smtp.163.com
+      MAIL_PASSWORD: 88066046xx
+      MAIL_PORT: '25'
+      MAIL_PROPERTIES_MAIL_SMTP_AUTH: 'true'
+      MAIL_PROPERTIES_MAIL_SMTP_FROM: cusc_tsp@163.com
+      MAIL_PROPERTIES_MAIL_SMTP_PORT: '25'
+      MAIL_PROPERTIES_MAIL_STARTTLS_ENABLE: 'true'
+      MAIL_USERNAME: cusc_tsp@163.com
+      TZ: Asia/Shanghai
+    # volumes:
+    # - ./data/web:/usr/local/tomcat/
+    links:
+    - hbase:hbase
+    - mysql:mysql
+    restart: unless-stopped
+    ports:
+    - 8080:8080/tcp
+  mysql:
+    image: marcosamm/pinpoint-mysql:1.6.2
+    environment:
+      MYSQL_DATABASE: pinpoint
+      MYSQL_PASSWORD: admin
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_USER: admin
+      TZ: Asia/Shanghai
+    volumes:
+    - ./data/mysql:/var/lib/mysql
+  collector:
+    image: marcosamm/pinpoint-collector:1.6.2
+    environment:
+      CLUSTER_ENABLE: 'true'
+      CLUSTER_ZOOKEEPER_ADDRESS: hbase
+      COLLECTOR_TCP_PORT: '9994'
+      COLLECTOR_UDP_SPAN_LISTEN_PORT: '9996'
+      COLLECTOR_UDP_STAT_LISTEN_PORT: '9995'
+      DISABLE_DEBUG: 'true'
+      HBASE_HOST: hbase
+      HBASE_PORT: '2181'
+      TZ: Asia/Shanghai
+    links:
+    - hbase:hbase
+    ports:
+    - 9994:9994/tcp
+    - 9995:9995/tcp
+    - 9995:9995/udp
+    - 9996:9996/tcp
+    - 9996:9996/udp
+  hbase:
+    image: marcosamm/pinpoint-hbase:1.6.2
+    environment:
+      TZ: Asia/Shanghai
+    volumes:
+    - ./data/hbase:/home/pinpoint
