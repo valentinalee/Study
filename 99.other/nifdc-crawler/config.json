@@ -8,7 +8,13 @@
     {
       "enable": true,
       "year": "2017",
-      "url": "http://www.nifdc.org.cn/CL0873/"
+      "url": "http://www.nifdc.org.cn/CL0873/",
+      "extendItems": [
+        {
+          "title": "生物制品批签发产品情况汇总（公示）表（2017年12月16日至12月31日）",
+          "url": "http://www.nicpbp.org.cn/CL0903/10477.html"
+        }
+      ]
     },
     {
       "enable": false,
