@@ -58,9 +58,7 @@ services:
     - hbase:hbase
     ports:
     - 9994:9994/tcp
-    - 9995:9995/tcp
     - 9995:9995/udp
-    - 9996:9996/tcp
     - 9996:9996/udp
   hbase:
     image: marcosamm/pinpoint-hbase:1.6.2
