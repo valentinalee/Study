@@ -1,0 +1,23 @@
+# Remember, leave a key empty if there is no value. None will be a string,
+# not a Python "NoneType"
+#
+# Also remember that all examples have 'disable_action' set to True. If you
+# want to use this action as a template, be sure to set this to False after
+# copying it.
+actions:
+  1: #这里的1表示第一个执行那么如果有多个执行顺序那么表示1 2 3表示
+    action: delete_indices #选择的选项
+    description: "Delete logstash- index" #信息显示，最后只是打在日志上
+    options: #选项相关
+      ignore_empty_list: True #将空表出现的内容放到日志中，默认是False显示在前台
+      disable_action: False #建议设为FLase否则有些关键Debug信息不会打在日志上
+    filters: #管道
+    - filtertype: pattern #筛选索引名称
+      kind: prefix #匹配索引前半段内容，除此之外还可以使用suffix(删选后半段内容)、timestring(通过筛选时间只有index值为*%{+YYYY.MM.dd}*的时候可以使用)、regex(使用自由风格的正则表达式)
+      value: logstash- #选好匹配的选项后填写匹配信息详细看<a href="https://www.elastic.co/guide/en/elasticsearch/client/curator/5.3/filtertype_pattern.html">这里</a>
+    - filtertype: age #筛选时间选项
+      source: name #通过指定的时间格式名字来筛选，其实还有下面的creation_date(索引创建时间)和field_stats(通过字段中的域：就是在kibana看到的Available Fields中的字段来匹配)详细看<a href="https://www.elastic.co/guide/en/elasticsearch/client/curator/5.3/filtertype_age.html#_literal_field_stats_literal_based_ages">这里</a>
+      direction: older #从现在往后算，一般都这么选除非你要保留历史数据删除现在数据
+      timestring: '%Y.%m.%d' #时间格式
+      unit: days #时间单位从年到小时随意选择
+      unit_count: 7 #时间间隔，现在是从当前时间小于7天的
